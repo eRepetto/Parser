@@ -136,8 +136,9 @@ Token malar_next_token(void)
 				t.attribute.err_lex[0] = '!';
 				t.attribute.err_lex[1] = c;
 				/*ignores everything until the end of line*/
-				while (c != '\n')
+				while (c != '\n' && c != '\0' && c != 255) {
 					c = b_getc(sc_buf);
+				}
 				line++;
 				t.code = ERR_T;
 				return t;
@@ -234,15 +235,11 @@ Token malar_next_token(void)
 		/* Part 2: Implementation of Finite State Machine (DFA)*/
 
 		lexstart = b_mark(sc_buf, b_getcoffset(sc_buf) - 1);
-		/* Check for run-time error */
-		if (lexstart == RT_FAIL_1) {
-			return generateErrorToken();
-		}
 		short capacity; /*variable used to store the capacity of the lex_buf*/
 
 						/*loop iterate until final state is accepting state*/
-		while (accept == NOAS) {
-			state = get_next_state(state, c, &accept);
+		while (1) {
+ 			state = get_next_state(state, c, &accept);
 			/*if final state is accepting it will break the loop*/
 			if (accept == ASWR || accept == ASNR)
 				break;
@@ -365,7 +362,7 @@ int char_class(char c)
 	else if (c == '"')
 		column = 5;
 	/*if c is a null terminator ('\0') or 255 it assigns 6 to column*/
-	else if (c == '\0' || c == 255)
+	else if (c == '\0' || c == -127)
 		column = 6;
 	/*if c doesn't match any of the conditions it assigns 7 to column*/
 	else
@@ -577,7 +574,7 @@ Token aa_func05(char lexeme[]) {
 	size_t i = 0;
 
 	/*check if num is in the range of a 2 byte int*/
-	if (num <= SHRT_MAX && num >= SHRT_MIN) {
+	if (num <= 65535 && num >= 0) {
 		t.code = INL_T;
 		t.attribute.int_value = (short)num;
 	}
@@ -679,13 +676,9 @@ Token aa_func12(char lexeme[]) {
 	/* Strings longer than 20 characters shall only show the first 17 characters
 	and append three dots (...) to the end */
 	for (size_t i = 0; i <= ERR_LEN && i <= strlen(lexeme); ++i) {
-		/* Increment the line number of the source code if line break is found */
-		if (lexeme[i] == '\n')
-			++line;
 		/* Insert null terminator at the end of lexeme */
-		else if (i == ERR_LEN || i == strlen(lexeme)) {
+		if (i == ERR_LEN || i == strlen(lexeme)) {
 			t.attribute.err_lex[i] = '\0';
-			//break;
 		}
 		/* Insert lexeme character by character into token */
 		else

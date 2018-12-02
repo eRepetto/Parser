@@ -44,7 +44,7 @@
 #define TABLE_COLUMNS 8
 /*transition table - type of states defined in separate table */
 int  st_table[][TABLE_COLUMNS] = {
-	/* State 0 */{ 1, 6, 4, ES, ES, 9, ES, ES },
+	/* State 0 */{ 1, 6, 4, ES, ES, 9, ER, ES },
 	/* State 1 */{ 1, 1, 1, 2, 3, ES, ES, 2 },
 	/* State 2 */{ IS, IS, IS, IS, IS, IS, IS, IS },
 	/* State 3 */{ IS, IS, IS, IS, IS, IS, IS, IS },
@@ -53,7 +53,7 @@ int  st_table[][TABLE_COLUMNS] = {
 	/* State 6 */{ ES, 6, ES, 7, ES, ES, ES, 5 },  
 	/* State 7 */{ 8, 7, 7, 8, 8, ES, ES, 8 },
 	/* State 8 */{ IS, IS, IS, IS, IS, IS, IS, IS },
-	/* State 9 */{ 9, 9, 9, 9, 9, 10, ES, 9 },
+	/* State 9 */{ 9, 9, 9, 9, 9, 10, ER, 9 },
 	/* State 10 */{ IS, IS, IS, IS, IS, IS, IS },
 	/* State 11 */{ IS, IS, IS, IS, IS, IS, IS },
 	/* State 12 */{ IS, IS, IS, IS, IS, IS, IS },
