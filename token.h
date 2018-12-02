@@ -1,7 +1,7 @@
 #pragma once
 /* Filename: token.h
 * Token declarations necessary for the scanner implementation
-* CST8152, Assignment #2
+* CST8152, Assignment #3
 * Version: 1.18.2
 * Date: 1 October 2018
 * Provided by: Svillen Ranev

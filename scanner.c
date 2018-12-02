@@ -3,14 +3,14 @@
 * Compiler: MS Visual Studio 2015
 * Authors: Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
 * Course: CST 8152 – Compilers, Lab Section: 11
-* Assignment: Assignment #2
-* Date: 2018-11-08
+* Assignment: Assignment #3
+* Date: 2018-12-06
 * Professor: Sv. Ranev
-* Purpose: the purpose of this file is to create a lexical analyzer (scanner) 
-*	for the platypus programming language. The scanner will read a source 
+* Purpose: the purpose of this file is to create a lexical analyzer (scanner)
+*	for the platypus programming language. The scanner will read a source
 *	program from a text file and produce a stream of token representation
 *	Function list: scanner_init(), malar_next_token(), get_next_state(),
-*	char_class(),aa_func02(), aa_func03(), aa_func08(), aa_func05(), 
+*	char_class(),aa_func02(), aa_func03(), aa_func08(), aa_func05(),
 *	aa_func10(), aa_func12(), isKeyword(), isAndOr();
 */
 
@@ -239,7 +239,7 @@ Token malar_next_token(void)
 
 						/*loop iterate until final state is accepting state*/
 		while (1) {
- 			state = get_next_state(state, c, &accept);
+			state = get_next_state(state, c, &accept);
 			/*if final state is accepting it will break the loop*/
 			if (accept == ASWR || accept == ASNR)
 				break;
@@ -285,20 +285,20 @@ Token malar_next_token(void)
 } // end malar_next_token
 
 
-/*
-* Purpose: the function is going to return the next state from the transition table
-* Author: Sv. Ranev
-* History/Versions:1.0
-* Called functions: char_class()
-* Parameters: int state - must be between 0 and 12; char c -
-* Return value: type int - must be between 1 and 12
-* Algorithm: function is going to get the column according to the character
-*	that has been pass as parameter, the current state and the column are 
-*	added as index in a 2 dimensional array, which are going to return the
-*	next state. the next state is used as an index in an array table, which 
-*	is going to return 11 if is accepting state with retract 12 if is accepting
-*	state without retract or return 13 if is not accepting state.
-*/
+  /*
+  * Purpose: the function is going to return the next state from the transition table
+  * Author: Sv. Ranev
+  * History/Versions:1.0
+  * Called functions: char_class()
+  * Parameters: int state - must be between 0 and 12; char c -
+  * Return value: type int - must be between 1 and 12
+  * Algorithm: function is going to get the column according to the character
+  *	that has been pass as parameter, the current state and the column are
+  *	added as index in a 2 dimensional array, which are going to return the
+  *	next state. the next state is used as an index in an array table, which
+  *	is going to return 11 if is accepting state with retract 12 if is accepting
+  *	state without retract or return 13 if is not accepting state.
+  */
 int get_next_state(int state, char c, int *accept)
 {
 
@@ -335,7 +335,7 @@ int get_next_state(int state, char c, int *accept)
 * Called functions: isalpha(), isdigit()
 * Parameters: type char
 * Return value: type int between 0 and 7
-* Algorithm: Function runs trough if statements comparing char c with each 
+* Algorithm: Function runs trough if statements comparing char c with each
 *	character from the column table, if both character math function is going
 *	to return the specific column number, else it will return number 7.
 */
@@ -373,24 +373,23 @@ int char_class(char c)
 
   /*
   ACCEPTING FUNCTION FOR THE arithmetic variable identifier AND keywords(VID - AVID / KW)
-
-/*
-* Purpose: The purpose of the function is to identified a variable name or a 
-*	keyword from the platypus language.
-* Author: Exequiel Repetto 040-885-774
-* History/Versions: 1.0
-* Called functions: isKeyword(), strlen()
-* Parameters: type char
-* Return value: type Token
-* Algorithm: function is going to call isKeyword() function with the lexeme as
-*	parameter to compare the lexeme with an array of keywords name, if lexeme 
-*	is a keyboard function is going to return the index from the array else it 
-*	will return -1, if is keyboard is going to set a token code and set the 
-*	index as attribute if lexeme is not a keyboard is going to set it as a 
-*	variable name, if lexeme is not longer than VID_LEN is going to set a token
-*	code and add the lexeme to the specific attribute. If lexeme is longer than
-*	VID_LEN only the number of VID_LEN characters are going to be stored.
-*/
+  /*
+  * Purpose: The purpose of the function is to identified a variable name or a
+  *	keyword from the platypus language.
+  * Author: Exequiel Repetto 040-885-774
+  * History/Versions: 1.0
+  * Called functions: isKeyword(), strlen()
+  * Parameters: type char
+  * Return value: type Token
+  * Algorithm: function is going to call isKeyword() function with the lexeme as
+  *	parameter to compare the lexeme with an array of keywords name, if lexeme
+  *	is a keyboard function is going to return the index from the array else it
+  *	will return -1, if is keyboard is going to set a token code and set the
+  *	index as attribute if lexeme is not a keyboard is going to set it as a
+  *	variable name, if lexeme is not longer than VID_LEN is going to set a token
+  *	code and add the lexeme to the specific attribute. If lexeme is longer than
+  *	VID_LEN only the number of VID_LEN characters are going to be stored.
+  */
 Token aa_func02(char lexeme[]) {
 
 	/* If lexeme is null return run-time error token */
@@ -434,19 +433,19 @@ Token aa_func02(char lexeme[]) {
 	return t;
 } /*end aa_func02 function*/
 
-/*
-* Purpose: Accepting state function for string variable identifiers. Stores
-*	SVID inside token SVID token.
-* Author: Gabriel Richard, 040-880-482
-* History/Versions: 1.0
-* Called functions: strlen()
-* Parameters: char lexeme[] - No restrictions
-* Return value: Returns a String Variable Identifier (SVID) token
-* Algorithm: If the passed lexeme is longer than 8 characters, stores the first
-*	7 characters inside token and appends '$' followed by null terminator
-*	('\0'). If lexeme is shorter than 8 characters, stores all the characters
-*	inside token and appends with null terminator.
-*/
+  /*
+  * Purpose: Accepting state function for string variable identifiers. Stores
+  *	SVID inside token SVID token.
+  * Author: Gabriel Richard, 040-880-482
+  * History/Versions: 1.0
+  * Called functions: strlen()
+  * Parameters: char lexeme[] - No restrictions
+  * Return value: Returns a String Variable Identifier (SVID) token
+  * Algorithm: If the passed lexeme is longer than 8 characters, stores the first
+  *	7 characters inside token and appends '$' followed by null terminator
+  *	('\0'). If lexeme is shorter than 8 characters, stores all the characters
+  *	inside token and appends with null terminator.
+  */
 
 Token aa_func03(char lexeme[]) {
 
@@ -489,22 +488,22 @@ Token aa_func03(char lexeme[]) {
 
   /*ACCEPTING FUNCTION FOR THE floating - point literal (FPL)*/
 
-/*
-* Purpose: The purpose of the function is to convert the lexeme representing
-*	to a floating point value, set the specific token code and .
-* Author: Exequiel Repetto 040-885-774
-* History/Versions: 1.0
-* Called functions: atof(), strlen()
-* Parameters: type char, function expects to receive an array of char
-* Return value: type Token - return a floating point literal token
-* Algorithm: the lexeme is converted to a floating point value, if the value
-*	converted is not greater or less than an 4 bytes floating point FPL_T 
-*	token code is set and the value is store in the flt_value attribute. if
-*	value is greater or less than the accepting 4 bytes floating point, an 
-*	error token will be set and value is going to be store in the err_lex 
-*	attribute, if the length of the number is greater than ERR_LEN only the
-*	first ERR_LEN -3 characters are going to be store followed by three dots (...).
-*/
+  /*
+  * Purpose: The purpose of the function is to convert the lexeme representing
+  *	to a floating point value, set the specific token code and .
+  * Author: Exequiel Repetto 040-885-774
+  * History/Versions: 1.0
+  * Called functions: atof(), strlen()
+  * Parameters: type char, function expects to receive an array of char
+  * Return value: type Token - return a floating point literal token
+  * Algorithm: the lexeme is converted to a floating point value, if the value
+  *	converted is not greater or less than an 4 bytes floating point FPL_T
+  *	token code is set and the value is store in the flt_value attribute. if
+  *	value is greater or less than the accepting 4 bytes floating point, an
+  *	error token will be set and value is going to be store in the err_lex
+  *	attribute, if the length of the number is greater than ERR_LEN only the
+  *	first ERR_LEN -3 characters are going to be store followed by three dots (...).
+  */
 Token aa_func08(char lexeme[]) {
 
 	/* If lexeme is null return run-time error token */
@@ -547,22 +546,22 @@ Token aa_func08(char lexeme[]) {
 
   /*	ACCEPTING FUNCTION FOR THE integer literal(IL)-decimal constant(DIL)*/
 
-/*
-* Purpose: The purpose of the function is to convert the lexeme representing 
-*	to a decimal constant, set the specific token code and attribute
-* Author: Exequiel Repetto 040-885-774
-* History/Versions: 1.0
-* Called functions: atol(), strlen()
-* Parameters: type char, function expects to receive an array of char
-* Return value: Type Token - return an integer literal token
-* Algorithm: the lexeme is converted to a decimal value, if the value converted
-*	is not greater or less than an 2 bytes integer INL_T token is set and the
-*	value is store in the int_value attribute. if value is greater or less than 
-*	the accepting 2 bytes integer, an error token will be set and value is 
-*	going to be store in the err_lex attribute, if the length of the number
-*	is greater than ERR_LEN only the first ERR_LEN -3 characters are going to
-*	be store followed by three dots (.)
-*/
+  /*
+  * Purpose: The purpose of the function is to convert the lexeme representing
+  *	to a decimal constant, set the specific token code and attribute
+  * Author: Exequiel Repetto 040-885-774
+  * History/Versions: 1.0
+  * Called functions: atol(), strlen()
+  * Parameters: type char, function expects to receive an array of char
+  * Return value: Type Token - return an integer literal token
+  * Algorithm: the lexeme is converted to a decimal value, if the value converted
+  *	is not greater or less than an 2 bytes integer INL_T token is set and the
+  *	value is store in the int_value attribute. if value is greater or less than
+  *	the accepting 2 bytes integer, an error token will be set and value is
+  *	going to be store in the err_lex attribute, if the length of the number
+  *	is greater than ERR_LEN only the first ERR_LEN -3 characters are going to
+  *	be store followed by three dots (.)
+  */
 Token aa_func05(char lexeme[]) {
 
 	/* If lexeme is null return run-time error token */
@@ -689,17 +688,17 @@ Token aa_func12(char lexeme[]) {
 	return t;
 }/*end aa_func12 function*/
 
-/* 
-* Purpose: Checks if passed lexeme is a keyword
-* Author: Gabriel Richard 040-880-482, Exequiel Repetto 040-885-774
-* History/Versions: 1.0
-* Called functions: strcmp()
-* Parameters: type char array of character
-* Return value: type int - between -1 and 10
-* Algorithm: function runs trough a loop comparing the lexeme with an array 
-*	of keywords, if lexeme is keyword is going to return the index to the 
-*	array, else it will return -1.
-*/
+ /*
+ * Purpose: Checks if passed lexeme is a keyword
+ * Author: Gabriel Richard 040-880-482, Exequiel Repetto 040-885-774
+ * History/Versions: 1.0
+ * Called functions: strcmp()
+ * Parameters: type char array of character
+ * Return value: type int - between -1 and 10
+ * Algorithm: function runs trough a loop comparing the lexeme with an array
+ *	of keywords, if lexeme is keyword is going to return the index to the
+ *	array, else it will return -1.
+ */
 int iskeyword(char * kw_lexeme) {
 
 	/* If kw_lexeme is null return -1 */
@@ -779,18 +778,18 @@ int isAndOr() {
 
 }/* end isAndOr function */
 
-/*
-* Purpose: Generates an error token when a run-time error is found.
-* Author: Gabriel Richard 040-880-482
-* History/Versions: 1.0
-* Called functions: strlen()
-* Parameters: none
-* Return value: type Token return a run time error token
-* Algorithm: Function is going to increment scerrnum by one, declares an
-*	initializes an array of char with the message "RUN TIME ERROR:", message
-*	is added to the attribute err_lex ending by a null terminator and sets the
-*	run time error token
-*/
+ /*
+ * Purpose: Generates an error token when a run-time error is found.
+ * Author: Gabriel Richard 040-880-482
+ * History/Versions: 1.0
+ * Called functions: strlen()
+ * Parameters: none
+ * Return value: type Token return a run time error token
+ * Algorithm: Function is going to increment scerrnum by one, declares an
+ *	initializes an array of char with the message "RUN TIME ERROR:", message
+ *	is added to the attribute err_lex ending by a null terminator and sets the
+ *	run time error token
+ */
 Token generateErrorToken() {
 	++scerrnum;
 	Token t;
