@@ -15,8 +15,10 @@
 #include "buffer.h"
 #endif
 
+#define  NO_ATTR 0 /*i defined this because it was giving me an error in match function i don't know if is the right value*/
+
 Token lookahead;
-int synerrno;
+int synerrno; /*error counter?*/
 /*according to his notes we should add more variables eventually*/
 
 
@@ -31,10 +33,11 @@ Similarly, you must use the string literal table to print the sting literals.*/
 extern char * kw_table[];
 extern Buffer * str_LTBL;
 extern int line;
+extern Token malar_next_token();
 
 
 /*function declaration*/
-void parser();
+void parser(Buffer * in_buf);
 void match(int pr_token_code, int pr_token_attribute);
 void syn_eh(int sync_token_code);
 void syn_printe();

@@ -1,13 +1,18 @@
 #include "parser.h"
 
 
-void parser(void) {
-	/*
+void parser(Buffer * in_buf) {
+	/**/
 	lookahead = malar_next_token();
-	program(); match(SEOF_T, NO_ATTR);
+	program(); 
+	match(SEOF_T, NO_ATTR);
 	gen_incode("PLATY: Source file parsed");
-*/
-}void match(int pr_token_code, int pr_token_attribute) {	/*The match() function matches two tokens: the current input token (lookahead) and the
+
+}
+
+void match(int pr_token_code, int pr_token_attribute) {
+
+	/*The match() function matches two tokens: the current input token (lookahead) and the
 token required by the parser. The token required by the parser is represented by two
 integers - the token code (pr_token_code), and the token attribute
 (pr_token_attribute). The attribute code is used only when the token code is one of
@@ -23,8 +28,20 @@ increments the error counter synerrno, and returns.
 If the match is unsuccessful, the function calls the error handler
 syn_eh(pr_token_code) and returns.
 Note: Make your match() function as efficient as possible. This function is called many
-times during the parsing. The function will be graded with respect to design and efficiency */}void syn_eh(int sync_token_code) {	/*This function implements a simple panic
-mode error recovery. First, the function calls syn_printe() and increments the error counter. Then the
+times during the parsing. The function will be graded with respect to design and efficiency */
+
+}
+
+
+void syn_eh(int sync_token_code) {
+
+	syn_printe();
+	++synerrno;
+
+
+	/*This function implements a simple panic
+mode error recovery. 
+First, the function calls syn_printe() and increments the error counter. Then the
 function implements a panic mode error recovery: the function advances the input token
 (lookahead) until it finds a token code matching the one required by the parser
 (pr_token_code passed to the function as sync_token_code ).
@@ -35,7 +52,13 @@ sync_token_code different from SEOF_T and reaches the end of the source file, th
 function calls exit(synerrno).
 If a matching token is found and the matching token is not SEOF_T, the function
 advances the input token one more time and returns. If a matching token is found and
-the matching token is SEOF_T, the function returns.*/	}/*he provided us this function I don't know if we have to make any change eventually*/void syn_printe() {
+the matching token is SEOF_T, the function returns.*/
+	
+}
+
+
+/*he provided us this function I don't know if we have to make any change eventually*/
+void syn_printe() {
 	Token t = lookahead;
 	
 	printf("PLATY: Syntax error:  Line:%3d\n", line);
@@ -110,14 +133,24 @@ the matching token is SEOF_T, the function returns.*/	}/*he provided us thi
 
 
 void gen_incode(char* s) {
+	
+	printf("%s",s);
 
 	/*Write the gen_incode() function. In Part 1 of this assignment the function takes a string
 as an argument and prints it. Later the function can be modified and used to emit
 intermediate (Bonus 1) or machine code. The function may be called any time a
 production is recognized (see parser()). The format of the message is: “PLATY:
 Program parsed”, “PLATY: Assignment statement parsed”, and so on (see the sample
-output files).*/
+output files).
+*/
 
 }
 
 
+void program(void) {
+	/*match(KW_T, PLATYPUS);*/  /*i don't know if we need to define a constant with the name platypus here*/
+	match(LBR_T, NO_ATTR); 
+	opt_statements();
+	match(RBR_T, NO_ATTR);
+	gen_incode("PLATY: Program parsed");
+}
