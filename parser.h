@@ -15,7 +15,19 @@
 #include "buffer.h"
 #endif
 
-#define  NO_ATTR 0 /*i defined this because it was giving me an error in match function i don't know if is the right value*/
+#define  NO_ATTR -2 /*i defined this because it was giving me an error in match function i don't know if is the right value*/
+
+ /*i defined all this constant because i think we need it, he gave us alot of code with those name from the KW_table*/
+#define ELSE	  0
+#define FALSE	  1
+#define IF        2
+#define PLATYPUS  3
+#define READ      4
+#define REPEAT    5
+#define THEN      6
+#define TRUE      7
+#define WHILE     8
+#define WRITE     9
 
 Token lookahead;
 int synerrno; /*error counter?*/
@@ -42,6 +54,9 @@ void match(int pr_token_code, int pr_token_attribute);
 void syn_eh(int sync_token_code);
 void syn_printe();
 void gen_incode(char* s);
+void program(void);
+void opt_statements();
+void statements();
 
 
 
@@ -92,15 +107,14 @@ from calling the error handler at the right place.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 #endif
+
+
+
+
+
+
+
+
+
+
