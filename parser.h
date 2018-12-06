@@ -17,7 +17,7 @@
 
 #define  NO_ATTR -2 /*i defined this because it was giving me an error in match function i don't know if is the right value*/
 
-/*i defined all this constant because i think we need it, he gave us alot of code with those name from the KW_table*/
+ /*i defined all this constant because i think we need it, he gave us alot of code with those name from the KW_table*/
 #define ELSE	  0
 #define FALSE	  1
 #define IF        2
@@ -29,27 +29,19 @@
 #define WHILE     8
 #define WRITE     9
 
-#define AND 0
-#define OR 1
-
-#define EQ 0
-#define NE 1
-#define GT 2
-#define LT 3
-
 Token lookahead;
 int synerrno; /*error counter?*/
-			  /*according to his notes we should add more variables eventually*/
+/*according to his notes we should add more variables eventually*/
 
 
 
-			  /*: You are not allowed to copy the keyword table in parser.h or
-			  parser.c. You must use a proper declaration to create an external link to the one
-			  defined in table.h.
-			  Similarly, you must use the string literal table to print the sting literals.*/
+/*: You are not allowed to copy the keyword table in parser.h or
+parser.c. You must use a proper declaration to create an external link to the one
+defined in table.h.
+Similarly, you must use the string literal table to print the sting literals.*/
 
 
-			  /*not sure if this is what he wants, for what I understand we cannot include table.h we should get the variable with the extern keyword*/
+/*not sure if this is what he wants, for what I understand we cannot include table.h we should get the variable with the extern keyword*/
 extern char * kw_table[];
 extern Buffer * str_LTBL;
 extern int line;
@@ -57,7 +49,7 @@ extern Token malar_next_token();
 
 
 /*function declaration*/
-void parser(void);
+void parser(Buffer * in_buf);
 void match(int pr_token_code, int pr_token_attribute);
 void syn_eh(int sync_token_code);
 void syn_printe();
@@ -73,14 +65,18 @@ void selection_statement();
 void pre_condition();
 void iteration_statement();
 void input_statement();
-void variable_list();
-void variable_identifier();
-void variable_list_p();
 void output_statement();
 void arithmetic_expression();
 void additive_arithmetic_expression();
 void unary_arithmetic_expression();
 void primary_arithmetic_expression();
+void multiplicative_arithmetic_expression();
+void additive_arithmetic_expression_P();
+void multiplicative_arithmetic_expression_p();
+void output_list();
+void variable_list();
+void variable_list_p();
+void variable_identifier();
 void conditional_expression();
 void logical_or_expression();
 void logical_or_expression_p();
@@ -94,6 +90,7 @@ void primary_s_relational_expression_p();
 void primary_string_expression();
 void string_expression();
 void string_expression_p();
+
 
 /*For each of your grammar productions write a function named after the name of the
 production. For example:

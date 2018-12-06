@@ -1,7 +1,7 @@
 #include "parser.h"
 
 
-void parser(void) {
+void parser(Buffer * in_buf) {
 	lookahead = malar_next_token();
 	program();
 	match(SEOF_T, NO_ATTR);
@@ -11,30 +11,6 @@ void parser(void) {
 
 void match(int pr_token_code, int pr_token_attribute) {
 
-	/*The match() function matches two tokens: the current input token (lookahead) and the
-	token required by the parser. The token required by the parser is represented by two
-	integers - the token code (pr_token_code), and the token attribute
-	(pr_token_attribute). The attribute code is used only when the token code is one of
-	the following codes: KW_T, LOG_OP_T, ART_OP_T, REL_OP_T. In all other cases
-	the token code is matched only.
-	If the match is successful and the lookahead is SEOF_T, the function returns.
-	If the match is successful and the lookahead is not SEOF_T, the function advances to
-	the next input token by executing the statement:
-	lookahead = malar_next_token ();
-	If the new lookahead token is ERR_T, the function calls the error printing function
-	syn_printe(), advances to the next input token by calling malar_next_token () again,
-	increments the error counter synerrno, and returns.
-	If the match is unsuccessful, the function calls the error handler
-	syn_eh(pr_token_code) and returns.
-	Note: Make your match() function as efficient as possible. This function is called many
-	times during the parsing. The function will be graded with respect to design and efficiency */
-	
-	
-	if (pr_token_code != lookahead.code) {
-		syn_eh(pr_token_code);
-		return;
-	}
-
 	if (lookahead.code != SEOF_T) {
 
 		switch (pr_token_code) {
@@ -42,11 +18,11 @@ void match(int pr_token_code, int pr_token_attribute) {
 		case LOG_OP_T:
 		case ART_OP_T:
 		case REL_OP_T:
+
 			if (pr_token_attribute != lookahead.attribute.get_int) {
 				syn_eh(pr_token_code);
 				return;
 			}
-
 		default:
 			break;
 		}
@@ -62,26 +38,9 @@ void match(int pr_token_code, int pr_token_attribute) {
 		synerrno++;
 		return;
 	}
-
 }
 
-
 void syn_eh(int sync_token_code) {
-
-	/*This function implements a simple panic
-	mode error recovery.
-	First, the function calls syn_printe() and increments the error counter. Then the
-	function implements a panic mode error recovery: the function advances the input token
-	(lookahead) until it finds a token code matching the one required by the parser
-	(pr_token_code passed to the function as sync_token_code ).
-	It is possible, when advancing, that the function can reach the end of the source file
-	without finding the matching token. To prevent from overrunning the input buffer, before
-	every move the function checks if the end of the file is reached. If the function looks for
-	sync_token_code different from SEOF_T and reaches the end of the source file, the
-	function calls exit(synerrno).
-	If a matching token is found and the matching token is not SEOF_T, the function
-	advances the input token one more time and returns. If a matching token is found and
-	the matching token is SEOF_T, the function returns.*/
 
 	syn_printe();
 	++synerrno;
@@ -92,13 +51,9 @@ void syn_eh(int sync_token_code) {
 			lookahead = malar_next_token();
 			return;
 		}
-
 	} while (lookahead.code != SEOF_T);
-
 }
 
-
-/*he provided us this function I don't know if we have to make any change eventually*/
 void syn_printe() {
 	Token t = lookahead;
 
@@ -177,9 +132,8 @@ void gen_incode(char* s) {
 	printf("%s", s);
 }
 
-
 void program(void) {
-	match(KW_T, PLATYPUS);  /*i don't know if we need to define a constant with the name platypus here, thats what i did*/
+	match(KW_T, PLATYPUS);  
 	match(LBR_T, NO_ATTR);
 	opt_statements();
 	match(RBR_T, NO_ATTR);
@@ -187,7 +141,7 @@ void program(void) {
 }
 
 /*<program> -> PLATYPUS {<opt_statements>}
-FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
+  FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
 void opt_statements(void) {
 	/* FIRST set: {AVID_T,SVID_T,KW_T(but not … see above),e} */
 	switch (lookahead.code) {
@@ -206,33 +160,28 @@ void opt_statements(void) {
 			break;
 		}
 	default: /*empty string – optional statements*/;
-		/* gen_incode("PLATY: Opt_statements parsed\n"); */
-		break;
+		gen_incode("PLATY: Opt_statements parsed\n");
 	}
 
-}
-/*<statements> -> <statement> <statements’>
-FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
+}	 
+/*<statements> -> <statement> <statements’>  
+  FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
 void statements(void) {
 	statement();
 	statements_p();
 }
 
 /*<statement> -> <assignment statement>|<selection statement>|<iteration statement>|<input statement>|<output statement>
-FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
+  FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
 */
 void statement(void) {
 
-
-	switch (lookahead.code)
-	{
+	switch (lookahead.code){
 	case AVID_T:
 	case SVID_T:
 		assignment_statement();
 		break;
-
 	case KW_T:
-
 		if (lookahead.attribute.kwt_idx == IF)
 			selection_statement();
 		else if (lookahead.attribute.kwt_idx == WHILE)
@@ -240,16 +189,61 @@ void statement(void) {
 		else if (lookahead.attribute.kwt_idx == READ)
 			input_statement();
 		else if (lookahead.attribute.kwt_idx == WRITE)
-			output_statement();
-	default:
+			 output_statement();
 		break;
+	default:
+		syn_printe();
+	}
+}
+/*
+<output statement > -> WRITE (<output list>) 
+FIRST(<output statement>) = {KW_T(WRITE)}
+*/
+
+void output_statement() {
+
+	match(KW_T, WRITE);
+	match(LPR_T, NO_ATTR);
+	output_list();
+	match(RBR_T, NO_ATTR);
+	match(EOS_T, NO_ATTR);
+	gen_incode("PLATY: OUTPUT statement parsed\n");
+}
+
+/*
+<output list> -> <opt_variable list> | STR_T
+FIRST(<output list>) = {AVID_T, SVID_T, STR_T}
+
+*/
+
+void output_list(void) {
+
+	switch (lookahead.code) {
+	case AVID_T:
+	case SVID_T:
+		variable_list();
+		break;
+	case STR_T:
+		match(STR_T, NO_ATTR);
+		gen_incode("PLATY: Output list (string literal) parsed\n");
+		break;
+	default:
+		gen_incode("PLATY: Output list (empty) parsed\n");
 	}
 }
 
 
-void output_statement(void) {
-
-
+/* FIRST set: {COM_T, e}
+* PRODUCTION: <variable list'> -> ,<variable identifier><variable list'> | e
+*/
+void variable_list_p(void) {
+	if (lookahead.code == COM_T) {
+		match(COM_T, NO_ATTR);
+		variable_identifier();
+		variable_list_p();
+	}
+	else
+		gen_incode("PLATY: Variable list parsed\n");
 }
 
 /* FIRST set: {KW_T(READ)}
@@ -265,7 +259,7 @@ void input_statement(void) {
 }
 
 /* FIRST set: {AVID_T, SVID_T}
-* PRODUCTION: <variable list> -> <variable identifier><variable list'> 
+* PRODUCTION: <variable list> -> <variable identifier><variable list'>
 */
 void variable_list(void) {
 	variable_identifier();
@@ -286,22 +280,10 @@ void variable_identifier(void) {
 	}
 }
 
-/* FIRST set: {COM_T, e}
-* PRODUCTION: <variable list'> -> ,<variable identifier><variable list'> | e
-*/
-void variable_list_p(void) {
-	if (lookahead.code == COM_T) {
-		match(COM_T, NO_ATTR);
-		variable_identifier();
-		variable_list_p();
-	}
-	else
-		gen_incode("PLATY: Variable list parsed\n");
-}
 
 /* FIRST set: {KW_T(WHILE)}
-* PRODUCTION: <iteration statement> -> WHILE <pre-condition> 
-	(<conditional expression>) REPEAT { <statements> };
+* PRODUCTION: <iteration statement> -> WHILE <pre-condition>
+(<conditional expression>) REPEAT { <statements> };
 */
 void iteration_statement(void) {
 	match(KW_T, WHILE);
@@ -339,6 +321,7 @@ void selection_statement(void) {
 	gen_incode("PLATY: Selection statement parsed\n");
 }
 
+
 /* FIRST set: {TRUE, FALSE}
 * PRODUCTION: <pre-condition> -> TRUE | FALSE
 */
@@ -351,14 +334,17 @@ void pre_condition(void) {
 		syn_printe();
 }
 
-/* FIRST set: {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
-* PRODUCTION: <statements'> -> <statement> <statements'> | e
+/*
+ <statements’>-> <statement> <statements’> | e
+->FIRST(<statements’>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
+
 */
 void statements_p(void) {
+
 	switch (lookahead.code) {
 	case AVID_T:
-	case SVID_T: 
-		statement(); 
+	case SVID_T:
+		statement();
 		statements_p();
 		break;
 	case KW_T:
@@ -372,21 +358,18 @@ void statements_p(void) {
 			statements_p();
 			break;
 		}
-	default: /* Empty string – optional statements */;
-		/* gen_incode("PLATY: Statements parsed\n"); */
-		break;
 	}
 }
 
 /*<assignment statement> -> <assignment expression>
-FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
+  FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
 void assignment_statement(void) {
 	assignment_expression();
 	gen_incode("PLATY: Assignment statement parsed\n");
 }
 
 /*<assignment expression> -> AVID = <arithmetic expression> | SVID = <string expression>
-FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
+  FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
 void assignment_expression(void) {
 
 	switch (lookahead.code) {
@@ -394,28 +377,27 @@ void assignment_expression(void) {
 		match(AVID_T, NO_ATTR);
 		match(ASS_OP_T, NO_ATTR);
 		arithmetic_expression();
-		gen_incode("PLATY: Assignment expression (arithmetic) parsed\n");
+		gen_incode("PLATY: Assignment expression (arithmetic) parsed\n");		
 		break;
 	case SVID_T:
 		match(SVID_T, NO_ATTR);
+		match(ASS_OP_T, NO_ATTR);
+		string_expression();
 	default: break;
 	}
 
 }
 
 /*<arithmetic expression> - > <unary arithmetic expression> | <additive arithmetic expression>
-FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
+  FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
 */
 void arithmetic_expression(void) {
-
 	switch (lookahead.code) {
-
 	case ART_OP_T:
 		if (lookahead.attribute.arr_op != MULT
 			&& lookahead.attribute.arr_op != DIV) {
-
 			unary_arithmetic_expression();
-
+			break;
 		}
 		else {
 			syn_printe();
@@ -425,35 +407,111 @@ void arithmetic_expression(void) {
 	case FPL_T:
 	case INL_T:
 		additive_arithmetic_expression();
+	}
+	gen_incode("PLATY: Arithmetic expression parsed\n");
+}
 
+/*
+ <additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expression’>
+ FIRST(<additive arithmetic expression>) = {AVID_T, FPL_T, INL_T, ART_OP_T(+), ART_OP_T(-)}
+*/
+void additive_arithmetic_expression(void) {
+	multiplicative_arithmetic_expression();
+	additive_arithmetic_expression_P();
+}
+
+/*
+<additive arithmetic expression’>-> +< multiplicative arithmetic expression><additive arithmetic expression’>
+								   |-< multiplicative arithmetic expression><additive arithmetic expression’>
+								   |e
+FIRST(<additive arithmetic expression’>) = { ART_OP_T(+), ART_OP_T(-), e}
+*/
+void additive_arithmetic_expression_P() {
+
+	switch (lookahead.code) {
+	case ART_OP_T:
+		if (lookahead.attribute.arr_op == PLUS) {
+			match(lookahead.code, PLUS);
+			multiplicative_arithmetic_expression();
+			additive_arithmetic_expression_P();
+			gen_incode("PLATY: Additive arithmetic expression parsed\n");
+			break;
+		}
+
+		else if (lookahead.attribute.arr_op == MINUS) {
+			match(lookahead.code, MINUS);
+			multiplicative_arithmetic_expression();
+			additive_arithmetic_expression_P();
+			gen_incode("PLATY: Additive arithmetic expression parsed\n");
+			break;
+		}
+		else
+			return;
+	default:
+		return;
 	}
 
-}
-
-
-void additive_arithmetic_expression(void) {
-
-
+	
 
 }
 
+/*<multiplicative arithmetic expression> -> <primary arithmetic expression> <multiplicative arithmetic expression’>
+ FIRST(<multiplicative arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
+*/
 
-/*<unary arithmetic expression> -> -  <primary arithmetic expression> | + <primary arithmetic expression>
+void multiplicative_arithmetic_expression(void) {
+	primary_arithmetic_expression();
+	multiplicative_arithmetic_expression_p();
+}
+
+/*<multiplicative arithmetic expression’> ->
+               * <primary arithmetic expression><multiplicative arithmetic expression’>
+              |/ <primary arithmetic expression><multiplicative arithmetic expression’>
+              |e
+ FIRST(<multiplicative arithmetic expression’>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
+*/
+void multiplicative_arithmetic_expression_p() {
+
+	switch (lookahead.code) {
+	case ART_OP_T:
+		if (lookahead.attribute.arr_op == MULT) {
+			match(lookahead.code, MULT);
+			multiplicative_arithmetic_expression();
+			multiplicative_arithmetic_expression_p();
+			gen_incode("PLATY: Multiplicative arithmetic expression parsed\n");
+		}
+
+		else if (lookahead.attribute.arr_op == DIV) {
+			match(lookahead.code, DIV);
+			multiplicative_arithmetic_expression();
+			additive_arithmetic_expression_P();
+			gen_incode("PLATY: Multiplicative arithmetic expression parsed\n");
+		}
+		else
+			return;
+
+	default:
+		return;
+	}
+
+	
+
+}
+
+
+/*<unary arithmetic expression> -> -  <primary arithmetic expression> + <primary arithmetic expression>
 FIRST(<unary arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+) }
 */
-void unary_arithmetic_expression(void) {
+void unary_arithmetic_expression() {
 
-	switch (lookahead.code)
-	{
-
+	switch (lookahead.code){
 	case ART_OP_T:
 		if (lookahead.attribute.arr_op != MULT
 			&& lookahead.attribute.arr_op != DIV) {
-
-			match(lookahead.code, NO_ATTR);
+			match(ART_OP_T, lookahead.attribute.arr_op);
 			primary_arithmetic_expression();
 		}
-
+		break;
 	default:
 		syn_printe();
 		return;
@@ -465,11 +523,9 @@ void unary_arithmetic_expression(void) {
 /*<primary arithmetic expression> -> AVID_T| FPL_T| INL_T | (<arithmetic expression>)
 FIRST(<primary arithmetic expression>) = { AVID_T, FPL_T, INL_T,RPR_T}  --> trying with the grammar like that
 */
-void primary_arithmetic_expression(void) {
-
+void primary_arithmetic_expression() {
 
 	switch (lookahead.code) {
-
 	case AVID_T:
 	case FPL_T:
 	case INL_T:
@@ -481,7 +537,6 @@ void primary_arithmetic_expression(void) {
 		match(RPR_T, NO_ATTR);
 		match(EOS_T, NO_ATTR);
 		break;
-
 	default:
 		syn_printe();
 		return;
@@ -495,7 +550,7 @@ void primary_arithmetic_expression(void) {
 */
 void conditional_expression(void) {
 	logical_or_expression();
-	gen_incode("PLATY: Conditional expression parsed\n");
+	gen_incode("PLATY: Conditional expression parsed");
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
@@ -513,7 +568,6 @@ void logical_or_expression(void) {
 	default:
 		syn_printe();
 	}
-
 	logical_or_expression_p();
 }
 
@@ -527,7 +581,7 @@ void logical_or_expression_p(void) {
 		logical_or_expression_p();
 	}
 	else /* Empty string - optional statements */
-		gen_incode("PLATY: Logical OR expression parsed\n");
+		gen_incode("PLATY: Logical OR expression parsed");
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
@@ -557,9 +611,8 @@ void logical_and_expression_p(void) {
 		relational_expression();
 		logical_and_expression_p();
 	}
-	else /* Empty string */
-		gen_incode("PLATY: Logical AND expression parsed\n");
-		
+	else /* Empty string - optional statements */
+		gen_incode("PLATY: Logical AND expression parsed");
 }
 
 
@@ -603,7 +656,7 @@ void primary_a_relational_expression(void) {
 	default:
 		syn_printe();
 	}
-	gen_incode("PLATY: Primary a_relational expression parsed\n");
+	gen_incode("PLATY: Primary a_relational expression parsed");
 }
 
 /* FIRST set: {REL_OP_T(==, <>, >, <)}
@@ -640,7 +693,7 @@ void primary_a_relational_expression_p(void) {
 */
 void primary_s_relational_expression(void) {
 	primary_string_expression();
-	gen_incode("PLATY: Primary s_relational expression parsed\n");
+	gen_incode("PLATY: Primary s_relational expression parsed");
 }
 
 /* FIRST set: {REL_OP_T(==, <>, >, <)}
@@ -689,6 +742,7 @@ void primary_string_expression(void) {
 	gen_incode("PLATY: Primary string expression parsed\n");
 }
 
+
 /* FIRST set: {SVID_T, STR_T}
 * PRODUCTION: <string expression> -> <primary string expression><string expression'>
 */
@@ -715,5 +769,5 @@ void string_expression_p(void) {
 		string_expression_p();
 	}
 	else /* Empty string - optional statements */
-		gen_incode("PLATY: String expression parsed\n");
+		gen_incode("PLATY: String expression parsed");
 }
