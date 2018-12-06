@@ -116,6 +116,7 @@ Token malar_next_token(void)
 			t.code = SEOF_T;
 			return t;
 		case '\n':
+		case '\r':
 			line++;
 		case '\t':
 		case ' ':
@@ -631,7 +632,7 @@ Token aa_func10(char lexeme[]) {
 	/* Add characters inside quotation marks to string literal table */
 	for (size_t i = 1; i < strlen(lexeme) - 1; ++i) {
 		/* Increment the line number of the source code if line break is found */
-		if (lexeme[i] == '\n')
+		if (lexeme[i] == '\n' || lexeme[i] == '\r')
 			++line;
 		/* Attempt to insert characters into string literal table */
 		if (!b_addc(str_LTBL, lexeme[i]))
@@ -674,14 +675,19 @@ Token aa_func12(char lexeme[]) {
 
 	/* Strings longer than 20 characters shall only show the first 17 characters
 	and append three dots (...) to the end */
-	for (size_t i = 0; i <= ERR_LEN && i <= strlen(lexeme); ++i) {
+	for (size_t i = 0; i <= strlen(lexeme); ++i) {
+		if(lexeme[i] == '\n' || lexeme[i] == '\r')
+			++line;
 		/* Insert null terminator at the end of lexeme */
-		if (i == ERR_LEN || i == strlen(lexeme)) {
+		if (i == ERR_LEN) 
 			t.attribute.err_lex[i] = '\0';
-		}
 		/* Insert lexeme character by character into token */
-		else
-			t.attribute.err_lex[i] = lexeme[i];
+		else if (i < ERR_LEN) {
+			if (i == strlen(lexeme))
+				t.attribute.err_lex[i] = '\0';
+			else
+				t.attribute.err_lex[i] = lexeme[i];
+		}
 	}
 
 	t.code = ERR_T;

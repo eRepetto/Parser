@@ -1,6 +1,5 @@
 #include "parser.h"
 
-
 void parser(void) {
 	lookahead = malar_next_token();
 	program();
@@ -50,15 +49,17 @@ void syn_eh(int sync_token_code) {
 	syn_printe();
 	++synerrno;
 
-	do {
+	while(1) {
 		lookahead = malar_next_token();
 		if (lookahead.code == sync_token_code) {
-			lookahead = malar_next_token();
+			if (sync_token_code != SEOF_T)
+				lookahead = malar_next_token();
+
 			return;
 		}
-
-	} while (lookahead.code != SEOF_T);
-
+		else if (lookahead.code == SEOF_T)
+			exit(synerrno);
+	}
 }
 
 void syn_printe() {
@@ -167,10 +168,9 @@ void opt_statements(void) {
 			statements();
 			break;
 		}
-	default: /*empty string – optional statements*/;
-		/* gen_incode("PLATY: Opt_statements parsed\n"); */
-		break;
-	}
+	default: /* Empty string - optional statements */
+		gen_incode("PLATY: Opt_statements parsed\n");
+	} 
 
 }
 /*<statements> -> <statement> <statements’>
@@ -358,9 +358,6 @@ void statements_p(void) {
 			statements_p();
 			break;
 		}
-	default: /* Empty string – optional statements */;
-		/* gen_incode("PLATY: Statements parsed\n"); */
-		break;
 	}
 }
 
@@ -385,8 +382,8 @@ void assignment_expression(void) {
 	case SVID_T:
 		match(SVID_T, NO_ATTR);
 		match(ASS_OP_T, NO_ATTR);
-		gen_incode("PLATY: Assignment expression (string) parsed\n");
 		string_expression();
+		gen_incode("PLATY: Assignment expression (string) parsed\n");
 	default: break;
 	}
 }
@@ -551,18 +548,7 @@ void conditional_expression(void) {
 *  PRODUCTION: <logical OR expression> -> <logical AND expression><logical OR expression'>
 */
 void logical_or_expression(void) {
-	switch (lookahead.code) {
-	case AVID_T:
-	case FPL_T:
-	case INL_T:
-	case SVID_T:
-	case STR_T:
-		logical_and_expression();
-		break;
-	default:
-		syn_printe();
-	}
-
+	logical_and_expression();
 	logical_or_expression_p();
 }
 
@@ -576,26 +562,14 @@ void logical_or_expression_p(void) {
 		logical_or_expression_p();
 		gen_incode("PLATY: Logical OR expression parsed\n");
 	}
-	else {}/* Empty string - optional statements */
-		/* gen_incode("PLATY: Logical OR expression parsed\n"); */
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
 *  PRODUCTION: <logical AND expression> -> <relational expression><logical AND expression'>
 */
 void logical_and_expression(void) {
-	switch (lookahead.code) {
-	case AVID_T:
-	case FPL_T:
-	case INL_T:
-	case SVID_T:
-	case STR_T:
-		relational_expression();
-		logical_and_expression_p();
-		break;
-	default:
-		syn_printe();
-	}
+	relational_expression();
+	logical_and_expression_p();
 }
 
 /* FIRST set: { LOG_OP_T(.AND.), e}
@@ -608,9 +582,6 @@ void logical_and_expression_p(void) {
 		logical_and_expression_p();
 		gen_incode("PLATY: Logical AND expression parsed\n");
 	}
-	else {} /* Empty string */
-		/* gen_incode("PLATY: Logical AND expression parsed\n"); */
-		
 }
 
 
@@ -717,7 +688,6 @@ void primary_s_relational_expression_p(void) {
 			break;
 		}
 		primary_s_relational_expression();
-		gen_incode("PLATY: Primary s_relational expression parsed");
 	}
 	else
 		syn_printe();
@@ -744,16 +714,9 @@ void primary_string_expression(void) {
 * PRODUCTION: <string expression> -> <primary string expression><string expression'>
 */
 void string_expression(void) {
-	switch (lookahead.code) {
-	case SVID_T:
-	case STR_T:
-		primary_string_expression();
-		string_expression_p();
-		gen_incode("PLATY: String expression parsed");
-		break;
-	default:
-		syn_printe();
-	}
+	primary_string_expression();
+	string_expression_p();
+	gen_incode("PLATY: String expression parsed\n");
 }
 
 /* FIRST set: {SCC_OP_T(#), e}
@@ -765,6 +728,4 @@ void string_expression_p(void) {
 		primary_string_expression();
 		string_expression_p();
 	}
-	else /* Empty string - optional statements */
-		gen_incode("PLATY: String expression parsed\n");
 }
