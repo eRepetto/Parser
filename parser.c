@@ -1,7 +1,7 @@
 #include "parser.h"
 
 
-void parser(Buffer * in_buf) {
+void parser(void) {
 	lookahead = malar_next_token();
 	program();
 	match(SEOF_T, NO_ATTR);
@@ -12,22 +12,28 @@ void parser(Buffer * in_buf) {
 void match(int pr_token_code, int pr_token_attribute) {
 
 	/*The match() function matches two tokens: the current input token (lookahead) and the
-token required by the parser. The token required by the parser is represented by two
-integers - the token code (pr_token_code), and the token attribute
-(pr_token_attribute). The attribute code is used only when the token code is one of
-the following codes: KW_T, LOG_OP_T, ART_OP_T, REL_OP_T. In all other cases
-the token code is matched only.
-If the match is successful and the lookahead is SEOF_T, the function returns.
-If the match is successful and the lookahead is not SEOF_T, the function advances to
-the next input token by executing the statement:
-lookahead = malar_next_token ();
-If the new lookahead token is ERR_T, the function calls the error printing function
-syn_printe(), advances to the next input token by calling malar_next_token () again,
-increments the error counter synerrno, and returns.
-If the match is unsuccessful, the function calls the error handler
-syn_eh(pr_token_code) and returns.
-Note: Make your match() function as efficient as possible. This function is called many
-times during the parsing. The function will be graded with respect to design and efficiency */
+	token required by the parser. The token required by the parser is represented by two
+	integers - the token code (pr_token_code), and the token attribute
+	(pr_token_attribute). The attribute code is used only when the token code is one of
+	the following codes: KW_T, LOG_OP_T, ART_OP_T, REL_OP_T. In all other cases
+	the token code is matched only.
+	If the match is successful and the lookahead is SEOF_T, the function returns.
+	If the match is successful and the lookahead is not SEOF_T, the function advances to
+	the next input token by executing the statement:
+	lookahead = malar_next_token ();
+	If the new lookahead token is ERR_T, the function calls the error printing function
+	syn_printe(), advances to the next input token by calling malar_next_token () again,
+	increments the error counter synerrno, and returns.
+	If the match is unsuccessful, the function calls the error handler
+	syn_eh(pr_token_code) and returns.
+	Note: Make your match() function as efficient as possible. This function is called many
+	times during the parsing. The function will be graded with respect to design and efficiency */
+	
+	
+	if (pr_token_code != lookahead.code) {
+		syn_eh(pr_token_code);
+		return;
+	}
 
 	if (lookahead.code != SEOF_T) {
 
@@ -36,7 +42,6 @@ times during the parsing. The function will be graded with respect to design and
 		case LOG_OP_T:
 		case ART_OP_T:
 		case REL_OP_T:
-
 			if (pr_token_attribute != lookahead.attribute.get_int) {
 				syn_eh(pr_token_code);
 				return;
@@ -45,7 +50,6 @@ times during the parsing. The function will be graded with respect to design and
 		default:
 			break;
 		}
-
 	}
 	else
 		return;
@@ -65,19 +69,19 @@ times during the parsing. The function will be graded with respect to design and
 void syn_eh(int sync_token_code) {
 
 	/*This function implements a simple panic
-mode error recovery.
-First, the function calls syn_printe() and increments the error counter. Then the
-function implements a panic mode error recovery: the function advances the input token
-(lookahead) until it finds a token code matching the one required by the parser
-(pr_token_code passed to the function as sync_token_code ).
-It is possible, when advancing, that the function can reach the end of the source file
-without finding the matching token. To prevent from overrunning the input buffer, before
-every move the function checks if the end of the file is reached. If the function looks for
-sync_token_code different from SEOF_T and reaches the end of the source file, the
-function calls exit(synerrno).
-If a matching token is found and the matching token is not SEOF_T, the function
-advances the input token one more time and returns. If a matching token is found and
-the matching token is SEOF_T, the function returns.*/
+	mode error recovery.
+	First, the function calls syn_printe() and increments the error counter. Then the
+	function implements a panic mode error recovery: the function advances the input token
+	(lookahead) until it finds a token code matching the one required by the parser
+	(pr_token_code passed to the function as sync_token_code ).
+	It is possible, when advancing, that the function can reach the end of the source file
+	without finding the matching token. To prevent from overrunning the input buffer, before
+	every move the function checks if the end of the file is reached. If the function looks for
+	sync_token_code different from SEOF_T and reaches the end of the source file, the
+	function calls exit(synerrno).
+	If a matching token is found and the matching token is not SEOF_T, the function
+	advances the input token one more time and returns. If a matching token is found and
+	the matching token is SEOF_T, the function returns.*/
 
 	syn_printe();
 	++synerrno;
@@ -174,12 +178,12 @@ void gen_incode(char* s) {
 	printf("%s", s);
 
 	/*Write the gen_incode() function. In Part 1 of this assignment the function takes a string
-as an argument and prints it. Later the function can be modified and used to emit
-intermediate (Bonus 1) or machine code. The function may be called any time a
-production is recognized (see parser()). The format of the message is: “PLATY:
-Program parsed”, “PLATY: Assignment statement parsed”, and so on (see the sample
-output files).
-*/
+	as an argument and prints it. Later the function can be modified and used to emit
+	intermediate (Bonus 1) or machine code. The function may be called any time a
+	production is recognized (see parser()). The format of the message is: “PLATY:
+	Program parsed”, “PLATY: Assignment statement parsed”, and so on (see the sample
+	output files).
+	*/
 
 }
 
@@ -193,8 +197,8 @@ void program(void) {
 }
 
 /*<program> -> PLATYPUS {<opt_statements>}
-  FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
-void opt_statements() {
+FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
+void opt_statements(void) {
 	/* FIRST set: {AVID_T,SVID_T,KW_T(but not … see above),e} */
 	switch (lookahead.code) {
 	case AVID_T:
@@ -212,21 +216,22 @@ void opt_statements() {
 			break;
 		}
 	default: /*empty string – optional statements*/;
-		gen_incode("PLATY: Opt_statements parsed\n");
+		/* gen_incode("PLATY: Opt_statements parsed\n"); */
+		break;
 	}
 
-}	 
-/*<statements> -> <statement> <statements’>  
-  FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
-void statements() {
+}
+/*<statements> -> <statement> <statements’>
+FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
+void statements(void) {
 	statement();
-	statementP();
+	statements_p();
 }
 
 /*<statement> -> <assignment statement>|<selection statement>|<iteration statement>|<input statement>|<output statement>
-  FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
+FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
 */
-void statement() {
+void statement(void) {
 
 
 	switch (lookahead.code)
@@ -245,50 +250,156 @@ void statement() {
 		else if (lookahead.attribute.kwt_idx == READ)
 			input_statement();
 		else if (lookahead.attribute.kwt_idx == WRITE)
-			 output_statement();
+			output_statement();
 	default:
 		break;
 	}
 }
 
 
-void output_statement() {
+void output_statement(void) {
 
 
 }
 
-void input_statement() {
-
-
+/* FIRST set: {KW_T(READ)}
+* PRODUCTION: <input statement> -> READ (<variable list>);
+*/
+void input_statement(void) {
+	match(KW_T, READ);
+	match(LPR_T, NO_ATTR);
+	variable_list();
+	match(RPR_T, NO_ATTR);
+	match(EOS_T, NO_ATTR);
+	gen_incode("PLATY: Input statement parsed\n");
 }
 
-void iteration_statement() {
-
+/* FIRST set: {AVID_T, SVID_T}
+* PRODUCTION: <variable list> -> <variable identifier><variable list'> 
+*/
+void variable_list(void) {
+	variable_identifier();
+	variable_list_p();
 }
 
-void selection_statement() {
-
-
+/* FIRST set: {AVID_T, SVID_T}
+* PRODUCTION: <variable identifier> -> AVID_T | SVID_T
+*/
+void variable_identifier(void) {
+	switch (lookahead.code) {
+	case AVID_T:
+	case SVID_T:
+		match(lookahead.code, NO_ATTR);
+		break;
+	default:
+		syn_printe();
+	}
 }
 
-void statementP() {
-
-
+/* FIRST set: {AVID_T, SVID_T, e}
+* PRODUCTION: <variable list'> -> <variable identifier><variable list'> | e
+*/
+void variable_list_p(void) {
+	switch (lookahead.code) {
+	case AVID_T:
+	case SVID_T:
+		variable_identifier();
+		variable_list_p();
+		break;
+	default:
+		break;
+	}
 }
 
+/* FIRST set: {KW_T(WHILE)}
+* PRODUCTION: <iteration statement> -> WHILE <pre-condition> 
+	(<conditional expression>) REPEAT { <statements> };
+*/
+void iteration_statement(void) {
+	match(KW_T, WHILE);
+	pre_condition();
+	match(LPR_T, NO_ATTR);
+	conditional_expression();
+	match(RPR_T, NO_ATTR);
+	match(KW_T, REPEAT);
+	match(LBR_T, NO_ATTR);
+	statements();
+	match(RBR_T, NO_ATTR);
+	match(EOS_T, NO_ATTR);
+	gen_incode("PLATY: Iteration statement parsed\n");
+}
 
+/* FIRST set: {KW_T (IF)}
+* PRODUCTION: <selection statement> -> IF <pre-condition> (<conditional expression>) THEN { <opt_statements> }
+ELSE { < opt_statements> }
+*/
+void selection_statement(void) {
+	match(KW_T, IF);
+	pre_condition();
+	match(LPR_T, NO_ATTR);
+	conditional_expression();
+	match(RPR_T, NO_ATTR);
+	match(KW_T, THEN);
+	match(LBR_T, NO_ATTR);
+	opt_statements();
+	match(RBR_T, NO_ATTR);
+	match(KW_T, ELSE);
+	match(LBR_T, NO_ATTR);
+	opt_statements();
+	match(RBR_T, NO_ATTR);
+	match(EOS_T, NO_ATTR);
+	gen_incode("PLATY: Selection statement parsed\n");
+}
 
+/* FIRST set: {TRUE, FALSE}
+* PRODUCTION: <pre-condition> -> TRUE | FALSE
+*/
+void pre_condition(void) {
+	if (lookahead.code == KW_T && lookahead.attribute.get_int == TRUE)
+		match(KW_T, TRUE);
+	else if (lookahead.code == KW_T && lookahead.attribute.get_int == FALSE)
+		match(KW_T, FALSE);
+	else
+		syn_printe();
+}
+
+/* FIRST set: {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
+* PRODUCTION: <statements'> -> <statement> <statements'> | e
+*/
+void statements_p(void) {
+	switch (lookahead.code) {
+	case AVID_T:
+	case SVID_T: 
+		statement(); 
+		statements_p();
+		break;
+	case KW_T:
+		if (lookahead.attribute.get_int != PLATYPUS
+			&& lookahead.attribute.get_int != ELSE
+			&& lookahead.attribute.get_int != THEN
+			&& lookahead.attribute.get_int != REPEAT
+			&& lookahead.attribute.get_int != TRUE
+			&& lookahead.attribute.get_int != FALSE) {
+			statement();
+			statements_p();
+			break;
+		}
+	default: /* Empty string – optional statements */;
+		/* gen_incode("PLATY: Statements parsed\n"); */
+		break;
+	}
+}
 
 /*<assignment statement> -> <assignment expression>
-  FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
-void assignment_statement() {
+FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
+void assignment_statement(void) {
 	assignment_expression();
 	gen_incode("PLATY: Assignment statement parsed\n");
 }
 
 /*<assignment expression> -> AVID = <arithmetic expression> | SVID = <string expression>
-  FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
-void assignment_expression() {
+FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
+void assignment_expression(void) {
 
 	switch (lookahead.code) {
 	case AVID_T:
@@ -305,9 +416,9 @@ void assignment_expression() {
 }
 
 /*<arithmetic expression> - > <unary arithmetic expression> | <additive arithmetic expression>
-  FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
+FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
 */
-void arithmetic_expression() {
+void arithmetic_expression(void) {
 
 	switch (lookahead.code) {
 
@@ -316,7 +427,7 @@ void arithmetic_expression() {
 			&& lookahead.attribute.arr_op != DIV) {
 
 			unary_arithmetic_expression();
-			
+
 		}
 		else {
 			syn_printe();
@@ -332,17 +443,17 @@ void arithmetic_expression() {
 }
 
 
-void additive_arithmetic_expression() {
+void additive_arithmetic_expression(void) {
 
 
 
 }
 
 
-/*<unary arithmetic expression> -> -  <primary arithmetic expression> + <primary arithmetic expression>
+/*<unary arithmetic expression> -> -  <primary arithmetic expression> | + <primary arithmetic expression>
 FIRST(<unary arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+) }
 */
-void unary_arithmetic_expression() {
+void unary_arithmetic_expression(void) {
 
 	switch (lookahead.code)
 	{
@@ -351,6 +462,7 @@ void unary_arithmetic_expression() {
 		if (lookahead.attribute.arr_op != MULT
 			&& lookahead.attribute.arr_op != DIV) {
 
+			match(lookahead.code, NO_ATTR);
 			primary_arithmetic_expression();
 		}
 
@@ -365,7 +477,7 @@ void unary_arithmetic_expression() {
 /*<primary arithmetic expression> -> AVID_T| FPL_T| INL_T | (<arithmetic expression>)
 FIRST(<primary arithmetic expression>) = { AVID_T, FPL_T, INL_T,RPR_T}  --> trying with the grammar like that
 */
-void primary_arithmetic_expression() {
+void primary_arithmetic_expression(void) {
 
 
 	switch (lookahead.code) {
@@ -375,7 +487,7 @@ void primary_arithmetic_expression() {
 	case INL_T:
 		match(lookahead.code, NO_ATTR);
 		break;
-	case RPR_T:
+	case LPR_T:
 		match(LPR_T, NO_ATTR);
 		arithmetic_expression();
 		match(RPR_T, NO_ATTR);
@@ -395,7 +507,7 @@ void primary_arithmetic_expression() {
 */
 void conditional_expression(void) {
 	logical_or_expression();
-	gen_incode("PLATY: Conditional expression parsed");
+	gen_incode("PLATY: Conditional expression parsed\n");
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
@@ -427,7 +539,7 @@ void logical_or_expression_p(void) {
 		logical_or_expression_p();
 	}
 	else /* Empty string - optional statements */
-		gen_incode("PLATY: Logical OR expression parsed");
+		gen_incode("PLATY: Logical OR expression parsed\n");
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
@@ -441,12 +553,11 @@ void logical_and_expression(void) {
 	case SVID_T:
 	case STR_T:
 		relational_expression();
+		logical_and_expression_p();
 		break;
 	default:
 		syn_printe();
 	}
-
-	logical_and_expression_p();
 }
 
 /* FIRST set: { LOG_OP_T(.AND.), e}
@@ -458,8 +569,9 @@ void logical_and_expression_p(void) {
 		relational_expression();
 		logical_and_expression_p();
 	}
-	else /* Empty string - optional statements */
-		gen_incode("PLATY: Logical AND expression parsed");
+	else /* Empty string */
+		gen_incode("PLATY: Logical AND expression parsed\n");
+		
 }
 
 
@@ -473,15 +585,17 @@ void relational_expression(void) {
 	case FPL_T:
 	case INL_T:
 		primary_a_relational_expression();
+		primary_a_relational_expression_p();
 		break;
 	case SVID_T:
 	case STR_T:
 		primary_s_relational_expression();
+		primary_s_relational_expression_p();
 		break;
 	default:
 		syn_printe();
 	}
-	gen_incode("PLATY: Relational expression parsed");
+	gen_incode("PLATY: Relational expression parsed\n");
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T}
@@ -501,7 +615,7 @@ void primary_a_relational_expression(void) {
 	default:
 		syn_printe();
 	}
-	gen_incode("PLATY: Primary a_relational expression parsed");
+	gen_incode("PLATY: Primary a_relational expression parsed\n");
 }
 
 /* FIRST set: {REL_OP_T(==, <>, >, <)}
@@ -538,7 +652,7 @@ void primary_a_relational_expression_p(void) {
 */
 void primary_s_relational_expression(void) {
 	primary_string_expression();
-	gen_incode("PLATY: Primary s_relational expression parsed");
+	gen_incode("PLATY: Primary s_relational expression parsed\n");
 }
 
 /* FIRST set: {REL_OP_T(==, <>, >, <)}
@@ -564,6 +678,7 @@ void primary_s_relational_expression_p(void) {
 			break;
 		}
 		primary_s_relational_expression();
+		gen_incode("PLATY: Primary s_relational expression parsed");
 	}
 	else
 		syn_printe();
@@ -583,7 +698,7 @@ void primary_string_expression(void) {
 	default:
 		syn_printe();
 	}
-	gen_incode("PLATY: Primary string expression parsed");
+	gen_incode("PLATY: Primary string expression parsed\n");
 }
 
 /* FIRST set: {SVID_T, STR_T}
@@ -595,6 +710,7 @@ void string_expression(void) {
 	case STR_T:
 		primary_string_expression();
 		string_expression_p();
+		gen_incode("PLATY: String expression parsed");
 		break;
 	default:
 		syn_printe();
@@ -611,5 +727,5 @@ void string_expression_p(void) {
 		string_expression_p();
 	}
 	else /* Empty string - optional statements */
-		gen_incode("PLATY: String expression parsed");
+		gen_incode("PLATY: String expression parsed\n");
 }
