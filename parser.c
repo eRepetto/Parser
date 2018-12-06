@@ -174,17 +174,7 @@ void syn_printe() {
 
 
 void gen_incode(char* s) {
-
 	printf("%s", s);
-
-	/*Write the gen_incode() function. In Part 1 of this assignment the function takes a string
-	as an argument and prints it. Later the function can be modified and used to emit
-	intermediate (Bonus 1) or machine code. The function may be called any time a
-	production is recognized (see parser()). The format of the message is: “PLATY:
-	Program parsed”, “PLATY: Assignment statement parsed”, and so on (see the sample
-	output files).
-	*/
-
 }
 
 
@@ -296,19 +286,17 @@ void variable_identifier(void) {
 	}
 }
 
-/* FIRST set: {AVID_T, SVID_T, e}
-* PRODUCTION: <variable list'> -> <variable identifier><variable list'> | e
+/* FIRST set: {COM_T, e}
+* PRODUCTION: <variable list'> -> ,<variable identifier><variable list'> | e
 */
 void variable_list_p(void) {
-	switch (lookahead.code) {
-	case AVID_T:
-	case SVID_T:
+	if (lookahead.code == COM_T) {
+		match(COM_T, NO_ATTR);
 		variable_identifier();
 		variable_list_p();
-		break;
-	default:
-		break;
 	}
+	else
+		gen_incode("PLATY: Variable list parsed\n");
 }
 
 /* FIRST set: {KW_T(WHILE)}
