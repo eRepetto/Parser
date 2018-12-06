@@ -1,7 +1,7 @@
 #include "parser.h"
 
 
-void parser(Buffer * in_buf) {
+void parser(void) {
 	lookahead = malar_next_token();
 	program();
 	match(SEOF_T, NO_ATTR);
@@ -10,6 +10,10 @@ void parser(Buffer * in_buf) {
 }
 
 void match(int pr_token_code, int pr_token_attribute) {
+	if (pr_token_code != lookahead.code) {
+		syn_eh(pr_token_code);
+		return;
+	}
 
 	if (lookahead.code != SEOF_T) {
 
@@ -18,11 +22,11 @@ void match(int pr_token_code, int pr_token_attribute) {
 		case LOG_OP_T:
 		case ART_OP_T:
 		case REL_OP_T:
-
 			if (pr_token_attribute != lookahead.attribute.get_int) {
 				syn_eh(pr_token_code);
 				return;
 			}
+
 		default:
 			break;
 		}
@@ -38,10 +42,11 @@ void match(int pr_token_code, int pr_token_attribute) {
 		synerrno++;
 		return;
 	}
+
 }
 
-void syn_eh(int sync_token_code) {
 
+void syn_eh(int sync_token_code) {
 	syn_printe();
 	++synerrno;
 
@@ -51,7 +56,9 @@ void syn_eh(int sync_token_code) {
 			lookahead = malar_next_token();
 			return;
 		}
+
 	} while (lookahead.code != SEOF_T);
+
 }
 
 void syn_printe() {
@@ -132,6 +139,7 @@ void gen_incode(char* s) {
 	printf("%s", s);
 }
 
+
 void program(void) {
 	match(KW_T, PLATYPUS);  
 	match(LBR_T, NO_ATTR);
@@ -141,7 +149,7 @@ void program(void) {
 }
 
 /*<program> -> PLATYPUS {<opt_statements>}
-  FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
+FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
 void opt_statements(void) {
 	/* FIRST set: {AVID_T,SVID_T,KW_T(but not … see above),e} */
 	switch (lookahead.code) {
@@ -160,23 +168,24 @@ void opt_statements(void) {
 			break;
 		}
 	default: /*empty string – optional statements*/;
-		gen_incode("PLATY: Opt_statements parsed\n");
+		/* gen_incode("PLATY: Opt_statements parsed\n"); */
+		break;
 	}
 
-}	 
-/*<statements> -> <statement> <statements’>  
-  FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
+}
+/*<statements> -> <statement> <statements’>
+FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
 void statements(void) {
 	statement();
 	statements_p();
 }
 
 /*<statement> -> <assignment statement>|<selection statement>|<iteration statement>|<input statement>|<output statement>
-  FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
+FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
 */
 void statement(void) {
-
-	switch (lookahead.code){
+	switch (lookahead.code)
+	{
 	case AVID_T:
 	case SVID_T:
 		assignment_statement();
@@ -189,35 +198,32 @@ void statement(void) {
 		else if (lookahead.attribute.kwt_idx == READ)
 			input_statement();
 		else if (lookahead.attribute.kwt_idx == WRITE)
-			 output_statement();
+			output_statement();
 		break;
 	default:
 		syn_printe();
 	}
 }
+
+
 /*
-<output statement > -> WRITE (<output list>) 
+<output statement > -> WRITE (<output list>)
 FIRST(<output statement>) = {KW_T(WRITE)}
 */
-
 void output_statement() {
-
 	match(KW_T, WRITE);
 	match(LPR_T, NO_ATTR);
 	output_list();
-	match(RBR_T, NO_ATTR);
+	match(RPR_T, NO_ATTR);
 	match(EOS_T, NO_ATTR);
-	gen_incode("PLATY: OUTPUT statement parsed\n");
+	gen_incode("PLATY: Output statement parsed\n");
 }
 
 /*
 <output list> -> <opt_variable list> | STR_T
 FIRST(<output list>) = {AVID_T, SVID_T, STR_T}
-
 */
-
 void output_list(void) {
-
 	switch (lookahead.code) {
 	case AVID_T:
 	case SVID_T:
@@ -230,20 +236,6 @@ void output_list(void) {
 	default:
 		gen_incode("PLATY: Output list (empty) parsed\n");
 	}
-}
-
-
-/* FIRST set: {COM_T, e}
-* PRODUCTION: <variable list'> -> ,<variable identifier><variable list'> | e
-*/
-void variable_list_p(void) {
-	if (lookahead.code == COM_T) {
-		match(COM_T, NO_ATTR);
-		variable_identifier();
-		variable_list_p();
-	}
-	else
-		gen_incode("PLATY: Variable list parsed\n");
 }
 
 /* FIRST set: {KW_T(READ)}
@@ -259,7 +251,7 @@ void input_statement(void) {
 }
 
 /* FIRST set: {AVID_T, SVID_T}
-* PRODUCTION: <variable list> -> <variable identifier><variable list'>
+* PRODUCTION: <variable list> -> <variable identifier><variable list'> 
 */
 void variable_list(void) {
 	variable_identifier();
@@ -280,10 +272,22 @@ void variable_identifier(void) {
 	}
 }
 
+/* FIRST set: {COM_T, e}
+* PRODUCTION: <variable list'> -> ,<variable identifier><variable list'> | e
+*/
+void variable_list_p(void) {
+	if (lookahead.code == COM_T) {
+		match(COM_T, NO_ATTR);
+		variable_identifier();
+		variable_list_p();
+	}
+	else
+		gen_incode("PLATY: Variable list parsed\n");
+}
 
 /* FIRST set: {KW_T(WHILE)}
-* PRODUCTION: <iteration statement> -> WHILE <pre-condition>
-(<conditional expression>) REPEAT { <statements> };
+* PRODUCTION: <iteration statement> -> WHILE <pre-condition> 
+	(<conditional expression>) REPEAT { <statements> };
 */
 void iteration_statement(void) {
 	match(KW_T, WHILE);
@@ -321,7 +325,6 @@ void selection_statement(void) {
 	gen_incode("PLATY: Selection statement parsed\n");
 }
 
-
 /* FIRST set: {TRUE, FALSE}
 * PRODUCTION: <pre-condition> -> TRUE | FALSE
 */
@@ -334,17 +337,14 @@ void pre_condition(void) {
 		syn_printe();
 }
 
-/*
- <statements’>-> <statement> <statements’> | e
-->FIRST(<statements’>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
-
+/* FIRST set: {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
+* PRODUCTION: <statements'> -> <statement> <statements'> | e
 */
 void statements_p(void) {
-
 	switch (lookahead.code) {
 	case AVID_T:
-	case SVID_T:
-		statement();
+	case SVID_T: 
+		statement(); 
 		statements_p();
 		break;
 	case KW_T:
@@ -358,38 +358,41 @@ void statements_p(void) {
 			statements_p();
 			break;
 		}
+	default: /* Empty string – optional statements */;
+		/* gen_incode("PLATY: Statements parsed\n"); */
+		break;
 	}
 }
 
-/*<assignment statement> -> <assignment expression>
-  FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
+/*<assignment statement> -> <assignment expression>;
+FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
 void assignment_statement(void) {
 	assignment_expression();
+	match(EOS_T, NO_ATTR);
 	gen_incode("PLATY: Assignment statement parsed\n");
 }
 
 /*<assignment expression> -> AVID = <arithmetic expression> | SVID = <string expression>
-  FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
+FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
 void assignment_expression(void) {
-
 	switch (lookahead.code) {
 	case AVID_T:
 		match(AVID_T, NO_ATTR);
 		match(ASS_OP_T, NO_ATTR);
 		arithmetic_expression();
-		gen_incode("PLATY: Assignment expression (arithmetic) parsed\n");		
+		gen_incode("PLATY: Assignment expression (arithmetic) parsed\n");
 		break;
 	case SVID_T:
 		match(SVID_T, NO_ATTR);
 		match(ASS_OP_T, NO_ATTR);
+		gen_incode("PLATY: Assignment expression (string) parsed\n");
 		string_expression();
 	default: break;
 	}
-
 }
 
 /*<arithmetic expression> - > <unary arithmetic expression> | <additive arithmetic expression>
-  FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
+FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T, LPR_T}
 */
 void arithmetic_expression(void) {
 	switch (lookahead.code) {
@@ -403,6 +406,7 @@ void arithmetic_expression(void) {
 			syn_printe();
 			return;
 		}
+	case LPR_T:
 	case AVID_T:
 	case FPL_T:
 	case INL_T:
@@ -412,8 +416,8 @@ void arithmetic_expression(void) {
 }
 
 /*
- <additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expression’>
- FIRST(<additive arithmetic expression>) = {AVID_T, FPL_T, INL_T, ART_OP_T(+), ART_OP_T(-)}
+<additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expression’>
+FIRST(<additive arithmetic expression>) = {AVID_T, FPL_T, INL_T, LPR_T, ART_OP_T(+), ART_OP_T(-)}
 */
 void additive_arithmetic_expression(void) {
 	multiplicative_arithmetic_expression();
@@ -422,12 +426,11 @@ void additive_arithmetic_expression(void) {
 
 /*
 <additive arithmetic expression’>-> +< multiplicative arithmetic expression><additive arithmetic expression’>
-								   |-< multiplicative arithmetic expression><additive arithmetic expression’>
-								   |e
+|-< multiplicative arithmetic expression><additive arithmetic expression’>
+|e
 FIRST(<additive arithmetic expression’>) = { ART_OP_T(+), ART_OP_T(-), e}
 */
 void additive_arithmetic_expression_P() {
-
 	switch (lookahead.code) {
 	case ART_OP_T:
 		if (lookahead.attribute.arr_op == PLUS) {
@@ -437,7 +440,6 @@ void additive_arithmetic_expression_P() {
 			gen_incode("PLATY: Additive arithmetic expression parsed\n");
 			break;
 		}
-
 		else if (lookahead.attribute.arr_op == MINUS) {
 			match(lookahead.code, MINUS);
 			multiplicative_arithmetic_expression();
@@ -450,25 +452,21 @@ void additive_arithmetic_expression_P() {
 	default:
 		return;
 	}
-
-	
-
 }
 
 /*<multiplicative arithmetic expression> -> <primary arithmetic expression> <multiplicative arithmetic expression’>
- FIRST(<multiplicative arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T}
+FIRST(<multiplicative arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T, LPR_T}
 */
-
 void multiplicative_arithmetic_expression(void) {
 	primary_arithmetic_expression();
 	multiplicative_arithmetic_expression_p();
 }
 
 /*<multiplicative arithmetic expression’> ->
-               * <primary arithmetic expression><multiplicative arithmetic expression’>
-              |/ <primary arithmetic expression><multiplicative arithmetic expression’>
-              |e
- FIRST(<multiplicative arithmetic expression’>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
+* <primary arithmetic expression><multiplicative arithmetic expression’>
+|/ <primary arithmetic expression><multiplicative arithmetic expression’>
+|e
+FIRST(<multiplicative arithmetic expression’>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
 */
 void multiplicative_arithmetic_expression_p() {
 
@@ -493,38 +491,35 @@ void multiplicative_arithmetic_expression_p() {
 	default:
 		return;
 	}
-
-	
-
 }
 
-
-/*<unary arithmetic expression> -> -  <primary arithmetic expression> + <primary arithmetic expression>
+/*<unary arithmetic expression> -> -  <primary arithmetic expression> | + <primary arithmetic expression>
 FIRST(<unary arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+) }
 */
-void unary_arithmetic_expression() {
+void unary_arithmetic_expression(void) {
 
-	switch (lookahead.code){
+	switch (lookahead.code)
+	{
+
 	case ART_OP_T:
 		if (lookahead.attribute.arr_op != MULT
 			&& lookahead.attribute.arr_op != DIV) {
-			match(ART_OP_T, lookahead.attribute.arr_op);
+
+			match(lookahead.code, lookahead.attribute.get_int);
 			primary_arithmetic_expression();
+			gen_incode("PLATY: Unary arithmetic expression parsed\n");
 		}
 		break;
 	default:
 		syn_printe();
 		return;
 	}
-	gen_incode("PLATY: Unary arithmetic expression parsed\n");
-
 }
 
 /*<primary arithmetic expression> -> AVID_T| FPL_T| INL_T | (<arithmetic expression>)
 FIRST(<primary arithmetic expression>) = { AVID_T, FPL_T, INL_T,RPR_T}  --> trying with the grammar like that
 */
-void primary_arithmetic_expression() {
-
+void primary_arithmetic_expression(void) {
 	switch (lookahead.code) {
 	case AVID_T:
 	case FPL_T:
@@ -535,7 +530,6 @@ void primary_arithmetic_expression() {
 		match(LPR_T, NO_ATTR);
 		arithmetic_expression();
 		match(RPR_T, NO_ATTR);
-		match(EOS_T, NO_ATTR);
 		break;
 	default:
 		syn_printe();
@@ -550,7 +544,7 @@ void primary_arithmetic_expression() {
 */
 void conditional_expression(void) {
 	logical_or_expression();
-	gen_incode("PLATY: Conditional expression parsed");
+	gen_incode("PLATY: Conditional expression parsed\n");
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
@@ -568,6 +562,7 @@ void logical_or_expression(void) {
 	default:
 		syn_printe();
 	}
+
 	logical_or_expression_p();
 }
 
@@ -579,9 +574,10 @@ void logical_or_expression_p(void) {
 		match(LOG_OP_T, OR);
 		logical_and_expression();
 		logical_or_expression_p();
+		gen_incode("PLATY: Logical OR expression parsed\n");
 	}
-	else /* Empty string - optional statements */
-		gen_incode("PLATY: Logical OR expression parsed");
+	else {}/* Empty string - optional statements */
+		/* gen_incode("PLATY: Logical OR expression parsed\n"); */
 }
 
 /* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
@@ -610,9 +606,11 @@ void logical_and_expression_p(void) {
 		match(LOG_OP_T, AND);
 		relational_expression();
 		logical_and_expression_p();
+		gen_incode("PLATY: Logical AND expression parsed\n");
 	}
-	else /* Empty string - optional statements */
-		gen_incode("PLATY: Logical AND expression parsed");
+	else {} /* Empty string */
+		/* gen_incode("PLATY: Logical AND expression parsed\n"); */
+		
 }
 
 
@@ -656,7 +654,7 @@ void primary_a_relational_expression(void) {
 	default:
 		syn_printe();
 	}
-	gen_incode("PLATY: Primary a_relational expression parsed");
+	gen_incode("PLATY: Primary a_relational expression parsed\n");
 }
 
 /* FIRST set: {REL_OP_T(==, <>, >, <)}
@@ -693,7 +691,7 @@ void primary_a_relational_expression_p(void) {
 */
 void primary_s_relational_expression(void) {
 	primary_string_expression();
-	gen_incode("PLATY: Primary s_relational expression parsed");
+	gen_incode("PLATY: Primary s_relational expression parsed\n");
 }
 
 /* FIRST set: {REL_OP_T(==, <>, >, <)}
@@ -742,7 +740,6 @@ void primary_string_expression(void) {
 	gen_incode("PLATY: Primary string expression parsed\n");
 }
 
-
 /* FIRST set: {SVID_T, STR_T}
 * PRODUCTION: <string expression> -> <primary string expression><string expression'>
 */
@@ -769,5 +766,5 @@ void string_expression_p(void) {
 		string_expression_p();
 	}
 	else /* Empty string - optional statements */
-		gen_incode("PLATY: String expression parsed");
+		gen_incode("PLATY: String expression parsed\n");
 }

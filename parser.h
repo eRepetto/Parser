@@ -17,7 +17,7 @@
 
 #define  NO_ATTR -2 /*i defined this because it was giving me an error in match function i don't know if is the right value*/
 
- /*i defined all this constant because i think we need it, he gave us alot of code with those name from the KW_table*/
+/*i defined all this constant because i think we need it, he gave us alot of code with those name from the KW_table*/
 #define ELSE	  0
 #define FALSE	  1
 #define IF        2
@@ -31,17 +31,17 @@
 
 Token lookahead;
 int synerrno; /*error counter?*/
-/*according to his notes we should add more variables eventually*/
+			  /*according to his notes we should add more variables eventually*/
 
 
 
-/*: You are not allowed to copy the keyword table in parser.h or
-parser.c. You must use a proper declaration to create an external link to the one
-defined in table.h.
-Similarly, you must use the string literal table to print the sting literals.*/
+			  /*: You are not allowed to copy the keyword table in parser.h or
+			  parser.c. You must use a proper declaration to create an external link to the one
+			  defined in table.h.
+			  Similarly, you must use the string literal table to print the sting literals.*/
 
 
-/*not sure if this is what he wants, for what I understand we cannot include table.h we should get the variable with the extern keyword*/
+			  /*not sure if this is what he wants, for what I understand we cannot include table.h we should get the variable with the extern keyword*/
 extern char * kw_table[];
 extern Buffer * str_LTBL;
 extern int line;
@@ -49,7 +49,7 @@ extern Token malar_next_token();
 
 
 /*function declaration*/
-void parser(Buffer * in_buf);
+void parser();
 void match(int pr_token_code, int pr_token_attribute);
 void syn_eh(int sync_token_code);
 void syn_printe();
