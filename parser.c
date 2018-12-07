@@ -1,4 +1,34 @@
+/*
+* File name: parser.c
+* Compiler: MS Visual Studio 2015
+* Authors: Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
+* Course: CST 8152 – Compilers, Lab Section: 11
+* Assignment: Assignment #3
+* Date: 2018-12-06
+* Professor: Sv. Ranev
+* Purpose: the purpose of this file is to implement a parser for the platypus language
+*	Function list: parser(),match(), syn_eh(), void syn_printe(),void gen_incode(),void program(),void opt_statements(),
+	statements(), assignment_statement(), assignment_expression(), void statements_p(), void statement(), void selection_statement(),
+	pre_condition(), void iteration_statement(), void input_statement(), void output_statement(), void arithmetic_expression(), void additive_arithmetic_expression(),
+	unary_arithmetic_expression(), primary_arithmetic_expression(), multiplicative_arithmetic_expression(), additive_arithmetic_expression_P(), multiplicative_arithmetic_expression_p(),
+	output_list(), variable_list(), variable_list_p(), variable_identifier(), conditional_expression(), logical_or_expression(), logical_or_expression_p(), logical_and_expression(),
+	logical_and_expression_p(), relational_expression(), primary_a_relational_expression(), primary_a_relational_expression_p(), primary_s_relational_expression(), primary_s_relational_expression_p()
+	primary_string_expression(), string_expression(), string_expression_p()
+ */
+
 #include "parser.h"
+
+ /*
+ * Purpose: the function is going to return the next state from the transition table
+ * Author: Sv. Ranev
+ * History/Versions:1.0
+ * Called functions: malar_next_token(), program(), match(), gen_incode()
+ * Parameters: none
+ * Return none
+ * Algorithm: Function is going to get the token code produced by the scanner, next is going to call
+	program function, which will start the parsing, once function finish the execution check for SEOF and prints message
+	to conclude the execution of the program
+ */
 
 void parser(void) {
 	lookahead = malar_next_token();
@@ -8,7 +38,29 @@ void parser(void) {
 
 }
 
+
+/*
+* Purpose:  matches two tokens: the current input token (lookahead) and the
+	token required by the parser
+* Author:  Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
+* History/Versions:1.0
+* Called functions: syn_eh(), malar_next_token()
+* Parameters: type int, type int
+* Return none
+* Algorithm: The match() function matches two tokens: the current input token (lookahead) and the
+	token required by the parser. The token required by the parser is represented by two
+	integers - the token code (pr_token_code), and the token attribute
+	(pr_token_attribute). The function advances to the next input token by executing the statement:
+	lookahead = malar_next_token ();
+	If the new lookahead token is ERR_T, the function calls the error printing function
+	syn_printe(), advances to the next input token by calling malar_next_token () again,
+	increments the error counter synerrno, and returns.
+	If the match is unsuccessful, the function calls the error handler
+	syn_eh(pr_token_code) and returns.
+*/
+
 void match(int pr_token_code, int pr_token_attribute) {
+
 	if (pr_token_code != lookahead.code) {
 		syn_eh(pr_token_code);
 		return;
@@ -41,15 +93,26 @@ void match(int pr_token_code, int pr_token_attribute) {
 		synerrno++;
 		return;
 	}
-
 }
 
+/*
+* Purpose: This function implements a simple panic mode error recovery.
+* Author:  Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
+* History/Versions:1.0
+* Called functions: syn_printe(), malar_next_token(), exit()
+* Parameters: type int
+* Return none
+* Algorithm:  the function calls syn_printe() and increments the error counter. Then the
+	function implements a panic mode error recovery: the function advances the input token
+	(lookahead) until it finds a token code matching the one required by the parser
+	(pr_token_code passed to the function as sync_token_code ).
+*/
 
 void syn_eh(int sync_token_code) {
 	syn_printe();
 	++synerrno;
 
-	while(1) {
+	while (1) {
 		lookahead = malar_next_token();
 		if (lookahead.code == sync_token_code) {
 			if (sync_token_code != SEOF_T)
@@ -62,6 +125,16 @@ void syn_eh(int sync_token_code) {
 	}
 }
 
+
+/*
+* Purpose: This function prints the error messages
+* Author:  Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
+* History/Versions:1.0
+* Called functions: printf(), b_location(),
+* Parameters: none
+* Return none
+* Algorithm:
+*/
 void syn_printe() {
 	Token t = lookahead;
 
@@ -141,16 +214,24 @@ void gen_incode(char* s) {
 }
 
 
+/*
+* <program> -> PLATYPUS {<opt_statements>}
+* FIRST(program) = {KW_T (PLATYPUS)}
+* Author: Exequiel Repetto, 040-885-774
+*/
 void program(void) {
-	match(KW_T, PLATYPUS);  
+	match(KW_T, PLATYPUS);
 	match(LBR_T, NO_ATTR);
 	opt_statements();
 	match(RBR_T, NO_ATTR);
 	gen_incode("PLATY: Program parsed\n");
 }
 
-/*<program> -> PLATYPUS {<opt_statements>}
-FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}*/
+/*
+* <program> -> PLATYPUS {<opt_statements>}
+* FIRST(<opt_statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
+* Author: Sv. Ranev
+*/
 void opt_statements(void) {
 	/* FIRST set: {AVID_T,SVID_T,KW_T(but not … see above),e} */
 	switch (lookahead.code) {
@@ -170,22 +251,26 @@ void opt_statements(void) {
 		}
 	default: /* Empty string - optional statements */
 		gen_incode("PLATY: Opt_statements parsed\n");
-	} 
+	}
 
 }
-/*<statements> -> <statement> <statements’>
-FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}*/
+/*
+* <statements> -> <statement> <statements’>
+* FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
+* Author: Exequiel Repetto, 040-885-774
+*/
 void statements(void) {
 	statement();
 	statements_p();
 }
 
-/*<statement> -> <assignment statement>|<selection statement>|<iteration statement>|<input statement>|<output statement>
-FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
+/*
+* <statement> -> <assignment statement>|<selection statement>|<iteration statement>|<input statement>|<output statement>
+* FIRST(<statement>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
+* Author: Exequiel Repetto, 040-885-774
 */
 void statement(void) {
-	switch (lookahead.code)
-	{
+	switch (lookahead.code){
 	case AVID_T:
 	case SVID_T:
 		assignment_statement();
@@ -207,8 +292,9 @@ void statement(void) {
 
 
 /*
-<output statement > -> WRITE (<output list>)
-FIRST(<output statement>) = {KW_T(WRITE)}
+* <output statement > -> WRITE (<output list>)
+* FIRST(<output statement>) = {KW_T(WRITE)}
+* Author: Exequiel Repetto, 040-885-774
 */
 void output_statement() {
 	match(KW_T, WRITE);
@@ -220,8 +306,9 @@ void output_statement() {
 }
 
 /*
-<output list> -> <opt_variable list> | STR_T
-FIRST(<output list>) = {AVID_T, SVID_T, STR_T}
+* <output list> -> <opt_variable list> | STR_T
+* FIRST(<output list>) = {AVID_T, SVID_T, STR_T}
+* Author: Exequiel Repetto, 040-885-774
 */
 void output_list(void) {
 	switch (lookahead.code) {
@@ -238,8 +325,10 @@ void output_list(void) {
 	}
 }
 
-/* FIRST set: {KW_T(READ)}
-* PRODUCTION: <input statement> -> READ (<variable list>);
+/* 
+* <input statement> -> READ (<variable list>);
+* FIRST set: {KW_T(READ)}
+* Author: Sv. Ranev
 */
 void input_statement(void) {
 	match(KW_T, READ);
@@ -250,16 +339,20 @@ void input_statement(void) {
 	gen_incode("PLATY: Input statement parsed\n");
 }
 
-/* FIRST set: {AVID_T, SVID_T}
-* PRODUCTION: <variable list> -> <variable identifier><variable list'> 
+/* 
+* <variable list> -> <variable identifier><variable list'>
+* FIRST set: {AVID_T, SVID_T}
+* Author: Gabriel Richard 040-880-482
 */
 void variable_list(void) {
 	variable_identifier();
 	variable_list_p();
 }
 
-/* FIRST set: {AVID_T, SVID_T}
-* PRODUCTION: <variable identifier> -> AVID_T | SVID_T
+/* 
+* <variable identifier> -> AVID_T | SVID_T
+* FIRST set: {AVID_T, SVID_T}
+* Author: Gabriel Richard 040-880-482
 */
 void variable_identifier(void) {
 	switch (lookahead.code) {
@@ -272,8 +365,10 @@ void variable_identifier(void) {
 	}
 }
 
-/* FIRST set: {COM_T, e}
-* PRODUCTION: <variable list'> -> ,<variable identifier><variable list'> | e
+/*
+* <variable list'> -> ,<variable identifier><variable list'> | e 
+* FIRST set: {COM_T, e} 
+* Author: Gabriel Richard 040-880-482 
 */
 void variable_list_p(void) {
 	if (lookahead.code == COM_T) {
@@ -285,9 +380,10 @@ void variable_list_p(void) {
 		gen_incode("PLATY: Variable list parsed\n");
 }
 
-/* FIRST set: {KW_T(WHILE)}
-* PRODUCTION: <iteration statement> -> WHILE <pre-condition> 
-	(<conditional expression>) REPEAT { <statements> };
+/* 
+* <iteration statement> -> WHILE <pre-condition> (<conditional expression>) REPEAT { <statements> };
+* FIRST set: {KW_T(WHILE)}
+* Author: Gabriel Richard 040-880-482
 */
 void iteration_statement(void) {
 	match(KW_T, WHILE);
@@ -303,9 +399,10 @@ void iteration_statement(void) {
 	gen_incode("PLATY: Iteration statement parsed\n");
 }
 
-/* FIRST set: {KW_T (IF)}
-* PRODUCTION: <selection statement> -> IF <pre-condition> (<conditional expression>) THEN { <opt_statements> }
-ELSE { < opt_statements> }
+/*
+* <selection statement> -> IF <pre-condition> (<conditional expression>) THEN { <opt_statements> } ELSE { < opt_statements> }
+* FIRST set: {KW_T (IF)}
+* Author: Gabriel Richard 040-880-482
 */
 void selection_statement(void) {
 	match(KW_T, IF);
@@ -325,8 +422,10 @@ void selection_statement(void) {
 	gen_incode("PLATY: Selection statement parsed\n");
 }
 
-/* FIRST set: {TRUE, FALSE}
-* PRODUCTION: <pre-condition> -> TRUE | FALSE
+/* 
+* <pre-condition> -> TRUE | FALSE
+* FIRST set: {TRUE, FALSE}
+* Author: Gabriel Richard 040-880-482
 */
 void pre_condition(void) {
 	if (lookahead.code == KW_T && lookahead.attribute.get_int == TRUE)
@@ -337,14 +436,17 @@ void pre_condition(void) {
 		syn_printe();
 }
 
-/* FIRST set: {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
-* PRODUCTION: <statements'> -> <statement> <statements'> | e
+/* 
+* <statements'> -> <statement> <statements'> | e
+* FIRST set: {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE), e}
+* <statements'> -> <statement> <statements'> | e
+* Author: Exequiel Repetto, 040-885-774
 */
 void statements_p(void) {
 	switch (lookahead.code) {
 	case AVID_T:
-	case SVID_T: 
-		statement(); 
+	case SVID_T:
+		statement();
 		statements_p();
 		break;
 	case KW_T:
@@ -361,16 +463,22 @@ void statements_p(void) {
 	}
 }
 
-/*<assignment statement> -> <assignment expression>;
-FIRST(<assignment statement>) = {FIRST(<assignment expression>)}*/
+/*
+* <assignment statement> -> <assignment expression>;
+* FIRST(<assignment statement>) = {FIRST(<assignment expression>)}
+* Author: Exequiel Repetto, 040-885-774
+*/
 void assignment_statement(void) {
 	assignment_expression();
 	match(EOS_T, NO_ATTR);
 	gen_incode("PLATY: Assignment statement parsed\n");
 }
 
-/*<assignment expression> -> AVID = <arithmetic expression> | SVID = <string expression>
-FIRST(<assignment expression>) = {AVID_T, SVID_T}*/
+/*
+* <assignment expression> -> AVID = <arithmetic expression> | SVID = <string expression>
+* FIRST(<assignment expression>) = {AVID_T, SVID_T}
+* Author: Exequiel Repetto, 040-885-774
+*/
 void assignment_expression(void) {
 	switch (lookahead.code) {
 	case AVID_T:
@@ -388,8 +496,10 @@ void assignment_expression(void) {
 	}
 }
 
-/*<arithmetic expression> - > <unary arithmetic expression> | <additive arithmetic expression>
-FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T, LPR_T}
+/*
+* <arithmetic expression> - > <unary arithmetic expression> | <additive arithmetic expression>
+* FIRST(<arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T, LPR_T}
+* Author: Exequiel Repetto, 040-885-774
 */
 void arithmetic_expression(void) {
 	switch (lookahead.code) {
@@ -413,8 +523,9 @@ void arithmetic_expression(void) {
 }
 
 /*
-<additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expression’>
-FIRST(<additive arithmetic expression>) = {AVID_T, FPL_T, INL_T, LPR_T, ART_OP_T(+), ART_OP_T(-)}
+* <additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expression’>
+* FIRST(<additive arithmetic expression>) = {AVID_T, FPL_T, INL_T, LPR_T}
+* Author: Exequiel Repetto, 040-885-774
 */
 void additive_arithmetic_expression(void) {
 	multiplicative_arithmetic_expression();
@@ -422,10 +533,10 @@ void additive_arithmetic_expression(void) {
 }
 
 /*
-<additive arithmetic expression’>-> +< multiplicative arithmetic expression><additive arithmetic expression’>
-|-< multiplicative arithmetic expression><additive arithmetic expression’>
-|e
-FIRST(<additive arithmetic expression’>) = { ART_OP_T(+), ART_OP_T(-), e}
+* <additive arithmetic expression’>-> +< multiplicative arithmetic expression><additive arithmetic expression’>
+*									 |-< multiplicative arithmetic expression><additive arithmetic expression’>|e
+* FIRST(<additive arithmetic expression’>) = { ART_OP_T(+), ART_OP_T(-), e}
+* Author: Exequiel Repetto, 040-885-774
 */
 void additive_arithmetic_expression_P() {
 	switch (lookahead.code) {
@@ -451,19 +562,21 @@ void additive_arithmetic_expression_P() {
 	}
 }
 
-/*<multiplicative arithmetic expression> -> <primary arithmetic expression> <multiplicative arithmetic expression’>
-FIRST(<multiplicative arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+), AVID_T, FPL_T, INL_T, LPR_T}
+/*
+* <multiplicative arithmetic expression> -> <primary arithmetic expression> <multiplicative arithmetic expression’>
+* FIRST(<multiplicative arithmetic expression>) = { AVID_T, FPL_T, INL_T, LPR_T}
+* Author: Exequiel Repetto, 040-885-774
 */
 void multiplicative_arithmetic_expression(void) {
 	primary_arithmetic_expression();
 	multiplicative_arithmetic_expression_p();
 }
 
-/*<multiplicative arithmetic expression’> ->
-* <primary arithmetic expression><multiplicative arithmetic expression’>
-|/ <primary arithmetic expression><multiplicative arithmetic expression’>
-|e
-FIRST(<multiplicative arithmetic expression’>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
+/*
+* <multiplicative arithmetic expression’> -> * <primary arithmetic expression><multiplicative arithmetic expression’>
+*											|/ <primary arithmetic expression><multiplicative arithmetic expression’> |e
+* FIRST(<multiplicative arithmetic expression’>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
+* Author: Exequiel Repetto, 040-885-774
 */
 void multiplicative_arithmetic_expression_p() {
 
@@ -490,8 +603,10 @@ void multiplicative_arithmetic_expression_p() {
 	}
 }
 
-/*<unary arithmetic expression> -> -  <primary arithmetic expression> | + <primary arithmetic expression>
-FIRST(<unary arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+) }
+/* 
+* <unary arithmetic expression> -> -  <primary arithmetic expression> | + <primary arithmetic expression>
+* FIRST(<unary arithmetic expression>) = { ART_OP_T(-), ART_OP_T(+) }
+* Author: Exequiel Repetto, 040-885-774
 */
 void unary_arithmetic_expression(void) {
 
@@ -513,8 +628,10 @@ void unary_arithmetic_expression(void) {
 	}
 }
 
-/*<primary arithmetic expression> -> AVID_T| FPL_T| INL_T | (<arithmetic expression>)
-FIRST(<primary arithmetic expression>) = { AVID_T, FPL_T, INL_T,RPR_T}  --> trying with the grammar like that
+/*
+* <primary arithmetic expression> -> AVID_T| FPL_T| INL_T | (<arithmetic expression>)
+* FIRST(<primary arithmetic expression>) = { AVID_T, FPL_T, INL_T,RPR_T} 
+* Author: Exequiel Repetto, 040-885-774
 */
 void primary_arithmetic_expression(void) {
 	switch (lookahead.code) {
@@ -536,24 +653,30 @@ void primary_arithmetic_expression(void) {
 
 }
 
-/* FIRST set: {AVID_T, FPL_T, INLT_T, SVID_T, STR_T}
-*  PRODUCTION: <conditional_expression> -> <logical OR expression>
+/* 
+* <conditional_expression> -> <logical OR expression>
+* FIRST set: {AVID_T, FPL_T, INLT_T, SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482   
 */
 void conditional_expression(void) {
 	logical_or_expression();
 	gen_incode("PLATY: Conditional expression parsed\n");
 }
 
-/* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
-*  PRODUCTION: <logical OR expression> -> <logical AND expression><logical OR expression'>
+/* 
+* <logical OR expression> -> <logical AND expression><logical OR expression'>
+* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482 
 */
 void logical_or_expression(void) {
 	logical_and_expression();
 	logical_or_expression_p();
 }
 
-/* FIRST set: {LOG_OP_T(.OR.), e}
-*  PRODUCTION: <logical OR expression'> -> .OR.<logical AND expression><logical OR expression'> | e
+/* 
+* <logical OR expression'> -> .OR.<logical AND expression><logical OR expression'> | e
+* FIRST set: {LOG_OP_T(.OR.), e}
+* Author: Gabriel Richard 040-880-482  
 */
 void logical_or_expression_p(void) {
 	if (lookahead.code == LOG_OP_T && lookahead.attribute.get_int == OR) {
@@ -564,16 +687,20 @@ void logical_or_expression_p(void) {
 	}
 }
 
-/* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
-*  PRODUCTION: <logical AND expression> -> <relational expression><logical AND expression'>
+/* 
+* <logical AND expression> -> <relational expression><logical AND expression'>
+* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482  
 */
 void logical_and_expression(void) {
 	relational_expression();
 	logical_and_expression_p();
 }
 
-/* FIRST set: { LOG_OP_T(.AND.), e}
-*  PRODUCTION: <logical AND expression'> -> .AND.<relational expression><logical AND expression'> | e
+/* 
+* <logical AND expression'> -> .AND.<relational expression><logical AND expression'> | e
+* FIRST set: { LOG_OP_T(.AND.), e}
+* Author: Gabriel Richard 040-880-482 
 */
 void logical_and_expression_p(void) {
 	if (lookahead.code == LOG_OP_T && lookahead.attribute.get_int == AND) {
@@ -585,9 +712,11 @@ void logical_and_expression_p(void) {
 }
 
 
-/* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
-*  PRODUCTION: <relational expression> -> <primary a_relational expression><primary a_relational expression'>
+/* 
+* <relational expression> -> <primary a_relational expression><primary a_relational expression'>
 *										| <primary s_relational expression><primary s_relational expression'>
+* FIRST set: {AVID_T, FPL_T, INL_T, SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482
 */
 void relational_expression(void) {
 	switch (lookahead.code) {
@@ -608,8 +737,10 @@ void relational_expression(void) {
 	gen_incode("PLATY: Relational expression parsed\n");
 }
 
-/* FIRST set: {AVID_T, FPL_T, INL_T}
-* PRODUCTION: <primary a_relational expression> -> AVID_T | FPL_T | INL_T
+/*
+* <primary a_relational expression> -> AVID_T | FPL_T | INL_T
+* FIRST set: {AVID_T, FPL_T, INL_T}
+* Author: Gabriel Richard 040-880-482 
 */
 void primary_a_relational_expression(void) {
 	switch (lookahead.code) {
@@ -628,12 +759,13 @@ void primary_a_relational_expression(void) {
 	gen_incode("PLATY: Primary a_relational expression parsed\n");
 }
 
-/* FIRST set: {REL_OP_T(==, <>, >, <)}
+/* 
 * PRODUCTION: <primary a_relational expression'> -> == <primary a_relational expression>
 *												| <> <primary a_relational expression>
 *												| > <primary a_relational expression>
 *												| < <primary a_relational expression>
-*
+* FIRST set: {REL_OP_T(==, <>, >, <)}
+* Author: Gabriel Richard 040-880-482
 */
 void primary_a_relational_expression_p(void) {
 	if (lookahead.code == REL_OP_T) {
@@ -657,19 +789,23 @@ void primary_a_relational_expression_p(void) {
 		syn_printe();
 }
 
-/* FIRST set: {SVID_T, STR_T}
-* PRODUCTION: <primary s_relational expression> -> <primary string expression>
+/* 
+* <primary s_relational expression> -> <primary string expression>
+* FIRST set: {SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482
 */
 void primary_s_relational_expression(void) {
 	primary_string_expression();
 	gen_incode("PLATY: Primary s_relational expression parsed\n");
 }
 
-/* FIRST set: {REL_OP_T(==, <>, >, <)}
-* PRODUCTION: <primary s_relational expression'> -> == <primary s_relational expression>
+/* 
+* <primary s_relational expression'> -> == <primary s_relational expression>
 *												| <> <primary s_relational expression>
 *												| > <primary s_relational expression>
-*												| < <primary s_relational expression>
+*												| < <primary s_relational expression
+* FIRST set: {REL_OP_T(==, <>, >, <)}
+* Author: Gabriel Richard 040-880-482
 */
 void primary_s_relational_expression_p(void) {
 	if (lookahead.code == REL_OP_T) {
@@ -693,8 +829,10 @@ void primary_s_relational_expression_p(void) {
 		syn_printe();
 }
 
-/* FIRST set: {SVID_T, STR_T}
-* PRODUCTION: <primary string expression> -> SVID_T | STR_T
+/* 
+* <primary string expression> -> SVID_T | STR_T
+* FIRST set: {SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482
 */
 void primary_string_expression(void) {
 	switch (lookahead.code) {
@@ -710,8 +848,10 @@ void primary_string_expression(void) {
 	gen_incode("PLATY: Primary string expression parsed\n");
 }
 
-/* FIRST set: {SVID_T, STR_T}
-* PRODUCTION: <string expression> -> <primary string expression><string expression'>
+/* 
+* <string expression> -> <primary string expression><string expression'>
+* FIRST set: {SVID_T, STR_T}
+* Author: Gabriel Richard 040-880-482
 */
 void string_expression(void) {
 	primary_string_expression();
@@ -719,8 +859,10 @@ void string_expression(void) {
 	gen_incode("PLATY: String expression parsed\n");
 }
 
-/* FIRST set: {SCC_OP_T(#), e}
-* PRODUCTION: <string expression'> -> #<primary string expression><string expression'> | e
+/* 
+* <string expression'> -> #<primary string expression><string expression'> | e
+* FIRST set: {SCC_OP_T(#), e}
+* Author: Gabriel Richard 040-880-482
 */
 void string_expression_p(void) {
 	if (lookahead.code == SCC_OP_T) {
@@ -728,4 +870,6 @@ void string_expression_p(void) {
 		primary_string_expression();
 		string_expression_p();
 	}
+/* */
 }
+
