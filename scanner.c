@@ -1,8 +1,8 @@
 /*
 * File name: scanner.c
 * Compiler: MS Visual Studio 2015
-* Authors: Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
-* Course: CST 8152 – Compilers, Lab Section: 11
+* Authors: Gabriel Richard, Exequiel Repetto
+* Course: CST 8152 â€“ Compilers, Lab Section: 11
 * Assignment: Assignment #3
 * Date: 2018-12-06
 * Professor: Sv. Ranev
@@ -74,7 +74,7 @@ int scanner_init(Buffer * psc_buf) {
 /*
 * Purpose: Reads from the buffer one character at a time and returns a token
 *	when a lexeme matches with a token pattern.
-* Author: Gabriel Richard, 040-880-482; Exequiel Repetto, 040-885-774
+* Author: Gabriel Richard, Exequiel Repetto
 * History/Versions: 1.0
 * Called functions: b_getc(), b_retract(), isAndOr(), b_mark(), b_getcoffset(),
 *	get_next_state(), b_allocate(), b_reset(),b_addc(), b_free()
@@ -331,7 +331,7 @@ int get_next_state(int state, char c, int *accept)
 /*
 * Purpose: Function is going to get the column of the transition table
 *	according the character passed to the parameter.
-* Authors: Gabriel Richard, 040-880-482; Exequiel Repetto, 040-885-774
+* Authors: Gabriel Richard, Exequiel Repetto
 * History/Versions: 1.0
 * Called functions: isalpha(), isdigit()
 * Parameters: type char
@@ -377,7 +377,7 @@ int char_class(char c)
   /*
   * Purpose: The purpose of the function is to identified a variable name or a
   *	keyword from the platypus language.
-  * Author: Exequiel Repetto 040-885-774
+  * Author: Exequiel Repetto
   * History/Versions: 1.0
   * Called functions: isKeyword(), strlen()
   * Parameters: type char
@@ -437,7 +437,7 @@ Token aa_func02(char lexeme[]) {
   /*
   * Purpose: Accepting state function for string variable identifiers. Stores
   *	SVID inside token SVID token.
-  * Author: Gabriel Richard, 040-880-482
+  * Author: Gabriel Richard
   * History/Versions: 1.0
   * Called functions: strlen()
   * Parameters: char lexeme[] - No restrictions
@@ -492,7 +492,7 @@ Token aa_func03(char lexeme[]) {
   /*
   * Purpose: The purpose of the function is to convert the lexeme representing
   *	to a floating point value, set the specific token code and .
-  * Author: Exequiel Repetto 040-885-774
+  * Author: Exequiel Repetto
   * History/Versions: 1.0
   * Called functions: atof(), strlen()
   * Parameters: type char, function expects to receive an array of char
@@ -550,7 +550,7 @@ Token aa_func08(char lexeme[]) {
   /*
   * Purpose: The purpose of the function is to convert the lexeme representing
   *	to a decimal constant, set the specific token code and attribute
-  * Author: Exequiel Repetto 040-885-774
+  * Author: Exequiel Repetto
   * History/Versions: 1.0
   * Called functions: atol(), strlen()
   * Parameters: type char, function expects to receive an array of char
@@ -606,7 +606,7 @@ Token aa_func05(char lexeme[]) {
  /*
  * Purpose: Accepting state function for string literals. Inserts identified
  *	string literal inside string literal table.
- * Author: Gabriel Richard, 040-880-482
+ * Author: Gabriel Richard
  * History/Versions: 1.0
  * Called functions: b_limit(), strlen(), b_addc()
  * Parameters: char lexeme[] - No restrictions
@@ -649,7 +649,7 @@ Token aa_func10(char lexeme[]) {
  /*
  * Purpose: Accepting state function for error token. Stores the lexeme
  *	responsible for the error before returning an error token.
- * Author: Gabriel Richard, 040-880-482
+ * Author: Gabriel Richard
  * History/Versions: 1.1
  * Called functions: strlen()
  * Parameters: char lexeme[] - No restrictions
@@ -696,7 +696,7 @@ Token aa_func12(char lexeme[]) {
 
  /*
  * Purpose: Checks if passed lexeme is a keyword
- * Author: Gabriel Richard 040-880-482, Exequiel Repetto 040-885-774
+ * Author: Gabriel Richard, Exequiel Repetto
  * History/Versions: 1.0
  * Called functions: strcmp()
  * Parameters: type char array of character
@@ -722,7 +722,7 @@ int iskeyword(char * kw_lexeme) {
 
  /*
  * Purpose: the purpose of the function is to identified logical operators .AND. & .OR.
- * Author: Exequiel Repetto 040-885-774
+ * Author: Exequiel Repetto
  * History/Versions: 1.0
  * Called functions: b_mark, b_getcoffset(), b_getc(), b_reset()
  * Parameters: none
@@ -786,7 +786,7 @@ int isAndOr() {
 
  /*
  * Purpose: Generates an error token when a run-time error is found.
- * Author: Gabriel Richard 040-880-482
+ * Author: Gabriel Richard
  * History/Versions: 1.0
  * Called functions: strlen()
  * Parameters: none
