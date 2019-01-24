@@ -1,8 +1,8 @@
 /*
 * File name: parser.c
 * Compiler: MS Visual Studio 2015
-* Authors: Gabriel Richard 040-880-482, Exequiel Repetto, 040-885-774
-* Course: CST 8152 – Compilers, Lab Section: 11
+* Authors: Gabriel Richard, Exequiel Repetto
+* Course: CST 8152 â€“ Compilers, Lab Section: 11
 * Assignment: Assignment #3
 * Date: 2018-12-06
 * Professor: Sv. Ranev
@@ -233,7 +233,7 @@ void program(void) {
 * Author: Sv. Ranev
 */
 void opt_statements(void) {
-	/* FIRST set: {AVID_T,SVID_T,KW_T(but not … see above),e} */
+	/* FIRST set: {AVID_T,SVID_T,KW_T(but not â€¦ see above),e} */
 	switch (lookahead.code) {
 	case AVID_T:
 	case SVID_T: statements(); break;
@@ -255,7 +255,7 @@ void opt_statements(void) {
 
 }
 /*
-* <statements> -> <statement> <statements’>
+* <statements> -> <statement> <statementsâ€™>
 * FIRST(<statements>) = {AVID_T, SVID_T, KW_T (IF, WHILE, READ, WRITE)}
 * Author: Exequiel Repetto, 040-885-774
 */
@@ -523,7 +523,7 @@ void arithmetic_expression(void) {
 }
 
 /*
-* <additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expression’>
+* <additive arithmetic expression> -> <multiplicative arithmetic expression> <additive arithmetic expressionâ€™>
 * FIRST(<additive arithmetic expression>) = {AVID_T, FPL_T, INL_T, LPR_T}
 * Author: Exequiel Repetto, 040-885-774
 */
@@ -533,9 +533,9 @@ void additive_arithmetic_expression(void) {
 }
 
 /*
-* <additive arithmetic expression’>-> +< multiplicative arithmetic expression><additive arithmetic expression’>
-*									 |-< multiplicative arithmetic expression><additive arithmetic expression’>|e
-* FIRST(<additive arithmetic expression’>) = { ART_OP_T(+), ART_OP_T(-), e}
+* <additive arithmetic expressionâ€™>-> +< multiplicative arithmetic expression><additive arithmetic expressionâ€™>
+*									 |-< multiplicative arithmetic expression><additive arithmetic expressionâ€™>|e
+* FIRST(<additive arithmetic expressionâ€™>) = { ART_OP_T(+), ART_OP_T(-), e}
 * Author: Exequiel Repetto, 040-885-774
 */
 void additive_arithmetic_expression_P() {
@@ -563,7 +563,7 @@ void additive_arithmetic_expression_P() {
 }
 
 /*
-* <multiplicative arithmetic expression> -> <primary arithmetic expression> <multiplicative arithmetic expression’>
+* <multiplicative arithmetic expression> -> <primary arithmetic expression> <multiplicative arithmetic expressionâ€™>
 * FIRST(<multiplicative arithmetic expression>) = { AVID_T, FPL_T, INL_T, LPR_T}
 * Author: Exequiel Repetto, 040-885-774
 */
@@ -573,9 +573,9 @@ void multiplicative_arithmetic_expression(void) {
 }
 
 /*
-* <multiplicative arithmetic expression’> -> * <primary arithmetic expression><multiplicative arithmetic expression’>
-*											|/ <primary arithmetic expression><multiplicative arithmetic expression’> |e
-* FIRST(<multiplicative arithmetic expression’>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
+* <multiplicative arithmetic expressionâ€™> -> * <primary arithmetic expression><multiplicative arithmetic expressionâ€™>
+*											|/ <primary arithmetic expression><multiplicative arithmetic expressionâ€™> |e
+* FIRST(<multiplicative arithmetic expressionâ€™>) = { ART_OP_T(*)  , ART_OP_T(/)  , e}
 * Author: Exequiel Repetto, 040-885-774
 */
 void multiplicative_arithmetic_expression_p() {
