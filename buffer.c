@@ -1,7 +1,7 @@
 /*File name: buffer.c
 Compiler: MS Visual Studio 2015
-Author: Exequiel Repetto, 040885774
-Course: CST 8152 – Compilers, Lab Section: 11
+Author: Exequiel Repetto
+Course: CST 8152 â€“ Compilers, Lab Section: 11
 Assignment: Assignment #3
 Date: 2018-12-06
 Professor: Sv. Ranev
